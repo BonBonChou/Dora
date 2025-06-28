@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>天球探險</title>
+  <title>哆啦A夢宇宙的模型</title>
   <style>
     body {
       margin: 0;
-      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
+      background: transparent;
+      /*background: radial-gradient(ellipse at center, #000 0%, #111 100%);*/
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
       color: white;
@@ -21,6 +22,7 @@
       background: url('https://images.pexels.com/photos/5685081/pexels-photo-5685081.jpeg') repeat-y center center / cover;
       animation: scrollStars 60s linear infinite;
       z-index: 0;
+      opacity: 0.8;
     }
 
     @keyframes scrollStars {
@@ -32,6 +34,13 @@
       position: relative;
       z-index: 1;
       padding-top: 20vh;
+    }
+
+    img.logo-img {
+      width: 80%;
+      height: auto;
+      max-width: 600px;
+      //margin-top: 30px;
     }
 
     h1 {
@@ -81,8 +90,9 @@
   <div class="stars"></div>
 
   <div class="container">
-    <h1>哆啦A夢<br>宇宙的模型</h1>
-    <p>🌌歡迎進入哆啦A夢的天球儀！點擊星體進行互動探索，感受宇宙的奧秘。</p>
+    <img class="logo-img" src="https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png">
+    <!-- 圖片網址: https://postimg.cc/0MnjjGVJ/a3af03f8-->
+    <p>歡迎進入哆啦A夢的天球儀！點擊星體進行互動探索，感受宇宙的奧秘。</p>
     <button class="start-btn" onclick="startGame()">開始探險</button>
 
     
@@ -96,8 +106,7 @@
 
   <script>
     function startGame() {
-      // 後續可導向主選單畫面
-      alert("進入主宇宙模擬頁（之後會跳轉）");
+
     }
   </script>
 
