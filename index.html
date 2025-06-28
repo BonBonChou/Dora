@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,15 +8,15 @@
     body {
       margin: 0;
       background: transparent;
-      /*background: radial-gradient(ellipse at center, #000 0%, #111 100%);*/
-      overflow: hidden;
-      font-family: 'Segoe UI', sans-serif;
+      //background: radial-gradient(ellipse at center, #000 0%, #111 100%);
+      //overflow: hidden;
+      font-family: 'Noto Sans TC', sans-serif;
       color: white;
       text-align: center;
     }
 
     .stars {
-      position: absolute;
+      position: fixed;
       width: 100%;
       height: 100%;
       background: url('https://images.pexels.com/photos/5685081/pexels-photo-5685081.jpeg') repeat-y center center / cover;
@@ -38,7 +38,7 @@
 
     img.logo-img {
       width: 80%;
-      height: auto;
+      //height: auto;
       max-width: 600px;
       //margin-top: 30px;
     }
@@ -48,12 +48,20 @@
       margin-bottom: 0.5em;
     }
 
+    h4 {
+      font-size: 1.4em;
+      line-height: 1.6;
+      margin-top: -1em;
+      margin-bottom: 1em;
+      color: #00ffcc;
+    }
+
     h5 {
       font-size: 1.2em;
       line-height: 1.2;
       margin-top: 0em;
       margin-bottom: 1em;
-      color: #d0b5ff;
+      color: #b5fff0;
     }
 
     .intro {
@@ -105,15 +113,15 @@
     <div id="start-screen">
       <img class="logo-img" src="https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png">
       <!-- 圖片網址: https://postimg.cc/0MnjjGVJ/a3af03f8-->
+      <h4>搭上太空船進入天球儀<br>認識宇宙的奧祕！</h4>
       <div class="intro">
-        <h5>從牛頓到愛因斯坦，人類試圖理解宇宙的運作方式，而黑洞正是這場探索的關鍵節點。宇宙劇場電影《黑洞》的內容化為這款小遊戲，邀請你一起走過理論與觀測的歷程，破解黑洞相關的宇宙謎團。</h5>
-        <h5>一同見證人類如何一步步接近宇宙的真相！</h5>
+        <h5>大雄和朋友們進入哆啦A夢的天球儀，用維京太空船航行在星辰間，認識太陽系的行星、見證恆星的生與死，甚至直面黑洞與銀河的奧祕。宇宙劇場同名電影《哆啦A夢：宇宙的模型》內容化為這款小遊戲，邀請你親自踏上一段充滿知識與驚奇的星際冒險。</h5>
+        <h5>一場從房間出發的宇宙之旅！</h5>
         <h3>🔍 遊戲說明</h3>
-        <p>🌌 <strong>背景故事</strong><br>你受命前往一艘無人太空探測器，它已完成一段驚心動魄的航程，留下珍貴的觀測紀錄。現在，你的任務是依照這些紀錄，一步步重建它的旅程，破解沿途的科學謎團。每一步，都是接近真相的線索拼圖。</p>
-        <p>🧠 <strong>玩法簡介</strong><br>遊戲總共 10 關。每關只有一個正確答案，答對得 1 分，答錯 0 分。</p>
-        <p>🏆 <strong>目標與結局</strong><br>遊戲結束後，將根據你的總分給予不同的評語與稱號。你能成功破解所有謎團，成為宇宙奧秘大師嗎？</p>
+        <p>🌌 <strong>背景故事</strong><br>你正駕駛著哆啦A夢的縮小維京太空船，進入天球儀後從太陽系出發，沿著航道前進。旅途中，你將靠完成小遊戲獲得燃料，一站站認識宇宙中的重要天體，逐步拼湊出宇宙演化的圖像。</p>
+        <p>🧠 <strong>玩法簡介</strong><br>遊戲分為 5 段旅程，每段起飛前需完成一個小遊戲補充燃料。每次探索會進入不同星體介紹頁面，了解宇宙的知識與奇觀。</p>
+        <p>🏆 <strong>目標與結局</strong><br>順利完成星際之旅，將見證宇宙的廣闊與生命的奇蹟，最後安全返回地球！</p>
       </div>
-      <p>歡迎進入哆啦A夢的天球儀！點擊星體進行互動探索，感受宇宙的奧秘。</p>
       <button class="start-btn" onclick="startGame()">開始探險</button>
     </div>
     
