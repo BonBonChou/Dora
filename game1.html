@@ -322,7 +322,7 @@
     function collect(e) {
       e.stopPropagation();
       const val = parseInt(this.dataset.value);
-      fuel += val;
+      fuel -= val;
       if (fuel < 0){
         fuel = 0;
       }
