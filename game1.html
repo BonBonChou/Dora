@@ -128,8 +128,8 @@
 
     .orb, .bomb {
       position: absolute;
-      width: 90px;
-      height: 90px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
@@ -167,10 +167,17 @@
       }
     }
 
-    .orb img,
-    .bomb img {
+    .orb img{
       width: 100%;
       height: 100%;
+      object-fit: contain;
+      transform: scale(1.3);  /* 看起來更大，但不裁圖 */
+      object-position: center center; /* 確保圖對齊容器中心 */
+      pointer-events: none; /* 圖片不會攔截點擊事件 */
+    }
+    .bomb img {
+      width: 70%;
+      height: 70%;
       object-fit: contain;
       transform: scale(1.3);  /* 看起來更大，但不裁圖 */
       object-position: center center; /* 確保圖對齊容器中心 */
@@ -248,25 +255,34 @@
       gameScr.classList.add('hidden');
       finalFuel.textContent = fuel;
       endScr.classList.remove('hidden');
+
+      let currentFuel = fuel;
+      localStorage.setItem("fuel", currentFuel);
+
+      //let oldFuel = parseInt(localStorage.getItem("fuel") || "0");
+      //localStorage.setItem("fuel", oldFuel + fuel);
+
     }
 
     function spawnObject() {
       const obj = document.createElement('div');
       const rand = Math.random();
-      if (rand < 0.6) {
+      if (rand < 0.5) {
         obj.className = 'orb blue';
         obj.dataset.value = 10;
-        obj.innerHTML = '<img src="https://i.postimg.cc/VvYGY4s9/nuclear-7067748-1280-removebg-preview.png">';
-      } else if (rand < 0.8) {
+        obj.innerHTML = '<img src="https://i.postimg.cc/Kvk3d7Wh/istockphoto-1409588156-2048x2048-removebg-preview.png">';
+        // https://postimg.cc/4mG3ccZW
+      } else if (rand < 0.7) {
         obj.className = 'orb gold';
         obj.dataset.value = 50;
         obj.textContent = '+50';
       } else {
         obj.className = 'bomb';
         obj.dataset.value = -100;
-        obj.innerHTML = '<img src="https://i.postimg.cc/VvYGY4s9/nuclear-7067748-1280-removebg-preview.png">';
+        obj.innerHTML = '<img src="https://i.postimg.cc/1RWpx35w/button-7850712-1280-removebg-preview.png">';
+        // https://postimg.cc/c6nKwZ3L
       }
-      const size = 90;
+      const size = 75;
       const x = Math.random() * (area.clientWidth - size);
       const y = Math.random() * (area.clientHeight - size - 40) + 40;
       obj.style.left = x + 'px';
