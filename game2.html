@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>哆啦A夢宇宙的模型</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>小遊戲2：能源核心收集器</title>
   <style>
     body {
       margin: 0;
       background: transparent;
-      //background: radial-gradient(ellipse at center, #000 0%, #111 100%);
-      //overflow: hidden;
       font-family: 'Noto Sans TC', sans-serif;
       color: white;
       text-align: center;
@@ -19,7 +17,7 @@
       position: fixed;
       width: 100%;
       height: 100%;
-      background: url('https://images.pexels.com/photos/5685081/pexels-photo-5685081.jpeg') repeat-y center center / cover;
+      background: url('https://raw.githubusercontent.com/BonBonChou/Dora/main/images/stars.jpeg') repeat-y center center / cover;
       animation: scrollStars 60s linear infinite;
       z-index: 0;
       opacity: 0.8;
@@ -31,6 +29,7 @@
     }
 
     .hidden { display: none; }
+
     button {
       margin: 1em;
       padding: 0.75em 2em;
@@ -42,91 +41,293 @@
       color: white;
       transition: background 0.3s ease;
     }
-    button:hover { background: #63b3ed; }
+
+    button:hover {
+      background: #63b3ed;
+    }
 
     .container {
       position: relative;
       z-index: 1;
-      padding-top: 20vh;
-    }
-
-    img.logo-img {
-      width: 80%;
-      //height: auto;
+      padding: 10vh 2em 2em;
       max-width: 600px;
-      margin-top: -5em;
+      margin: auto;
     }
 
     h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
+      font-size: 2.5em;
+      margin-bottom: 0.2em;
     }
 
     h4 {
-      font-size: 1.4em;
-      line-height: 1.6;
-      margin-top: -1em;
-      margin-bottom: 1em;
+      font-size: 1.8em;
       color: #00ffcc;
+      margin-top: 0;
+      margin-bottom: 1em;
     }
 
     h5 {
-      font-size: 1.2em;
-      line-height: 1.2;
-      margin-top: 0em;
-      margin-bottom: 1em;
+      font-size: 1.1em;
       color: #b5fff0;
+      margin-bottom: 1em;
     }
 
     .intro {
       text-align: justify;
-      margin-bottom: 0em;
       background: rgba(255,255,255,0.05);
-      padding: 0.5em;
+      padding: 1em;
+      width: fit-content;     /* 核心：自動根據內容寬度調整 */
+      max-width: 100%;        /* 防止太長時超出畫面 */
       border-radius: 10px;
+      margin: 0 auto 1.5em auto;  /* 水平置中 */
+      margin-bottom: 1.5em;
+      font-size: 1.4em;
     }
 
-    .link-bar {
-      margin-top: 3em;
-      font-size: 0.9em;
+    .rules p {
+      text-align: left;
+      line-height: 1.6em;
     }
 
-    .link-bar a {
-      color: #66ccff;
-      margin: 0 10px;
-      text-decoration: none;
+    .color-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 6px;
     }
 
-    .link-bar a:hover {
-      text-decoration: underline;
+    .blue { background: #4ec3ff; }
+    .gold { background: #ffd24e; }
+    .red { background: #ff5b5b; }
+
+    #game-area {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      overflow: hidden;
+      z-index: 1;
     }
+
+    .hud {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2em;
+      font-size: 2.5em;
+      z-index: 2;
+    }
+    .hud > div {
+      white-space: nowrap;
+      min-width: 120px;
+    }
+
+
+    .orb, .bomb {
+      position: absolute;
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.1em;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .orb.blue {
+      background: #4ec3ff;
+      box-shadow: 0 0 10px #4ec3ff;
+    }
+
+    .orb.gold {
+      background: #ffd24e;
+      box-shadow: 0 0 14px #ffd24e;
+      color: #000;
+    }
+
+    .bomb {
+      background: #ff4d4d;
+      box-shadow: 0 0 12px #ff4d4d;
+    }
+
+    .pop {
+      animation: pop 0.3s forwards;
+    }
+
+    @keyframes pop {
+      to {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    .orb.blue img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.3);
+      object-position: center center;
+      pointer-events: none;
+    }
+
+    .orb.gold img {
+      width: 75%;
+      height: 75%;
+      object-fit: contain;
+      transform: scale(1.3);
+      object-position: center center;
+      pointer-events: none;
+    }
+
+    .bomb img {
+      width: 70%;
+      height: 70%;
+      object-fit: contain;
+      transform: scale(1.3);  /* 看起來更大，但不裁圖 */
+      object-position: center center; /* 確保圖對齊容器中心 */
+      pointer-events: none; /* 圖片不會攔截點擊事件 */
+    }
+
   </style>
 </head>
 <body>
 
   <div class="stars"></div>
 
-  <div class="container">
-    <div id="start-screen">
-      <img class="logo-img" src="https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png">
-      <!-- 圖片網址: https://postimg.cc/0MnjjGVJ/a3af03f8-->
-      <h4>搭上太空船進入天球儀，<br>見識宇宙的遼闊與奧祕！</h4>
-      <div class="intro">
-        <h5>大雄和朋友們進入哆啦A夢的天球儀，用維京太空船航行在星辰間，認識太陽系的行星、見證恆星的生與死，甚至直面黑洞與銀河的奧祕。宇宙劇場同名電影《哆啦A夢：宇宙的模型》內容化為這款小遊戲，邀請你親自踏上一段充滿知識與驚奇的星際冒險。</h5>
-        <h5>一場從房間出發的宇宙之旅！</h5>
-        <h3>🔍 遊戲說明</h3>
-        <p>🌌 <strong>背景故事</strong><br>你正駕駛著哆啦A夢的縮小維京太空船，進入天球儀後從太陽系出發，沿著航道前進。旅途中，你將靠完成小遊戲獲得燃料，一站站認識宇宙中的重要天體，逐步拼湊出宇宙演化的圖像。</p>
-        <p>🧠 <strong>玩法簡介</strong><br>遊戲分為 5 段旅程，每段起飛前需完成一個小遊戲補充燃料。每次探索會進入不同星體介紹頁面，了解宇宙的知識與奇觀。</p>
-        <p>🏆 <strong>目標與結局</strong><br>順利完成星際之旅，將見證宇宙的廣闊與生命的奇蹟，最後安全返回地球！</p>
-      </div>
-      <button onclick="startGame()">開始探險</button>
+  <!-- Tutorial -->
+  <div id="tutorial-screen" class="container">
+    <h1>小遊戲 2：能源核心收集器</h1>
+    <h4>點擊能量球獲得燃料，躲開地雷！</h4>
+    <div class="intro">
+      <p><span class="color-dot blue"></span>藍色能源核心　→　+10 燃料<br>
+         <span class="color-dot gold"></span>金色能源核心　→　+50 燃料<br>
+         <span class="color-dot red"></span>誤觸紅色地雷　→　-100 燃料</p>
+      <p>限時 20 秒，結束後自動結算。</p>
     </div>
-    
+    <button onclick="startGame()">開始遊戲</button>
+  </div>
+
+  <!-- Game -->
+  <div id="game-screen" class="hidden">
+    <div class="hud">
+      <div>燃料：<span id="fuel">0</span></div>
+      <div>倒數：<span id="time">20</span>s</div>
+    </div>
+    <div id="game-area"></div>
+  </div>
+
+  <!-- End -->
+  <div id="end-screen" class="container hidden">
+    <h1>收集完成！</h1>
+    <h4>你獲得了 <span id="final-fuel"></span> 燃料！</h4>
+    <button onclick="location.href='https://bonbonchou.github.io/Dora/intro1.html'">出發！</button>
+  </div>
+
+  <!-- Not Enough Fuel -->
+  <div id="fail-screen" class="container hidden">
+    <h1>燃料不足！</h1>
+    <h4>無法啟動引擎，請再試一次。</h4>
+    <button onclick="restartGame()">重新開始</button>
   </div>
 
   <script>
-    function startGame() {
+    const SPAWN_INTERVAL = 700;
+    const GAME_DURATION  = 20000;
+    let fuel = 0, timeLeft = 20, gameTimer, spawnTimer;
 
+    const tutScr = document.getElementById('tutorial-screen');
+    const gameScr = document.getElementById('game-screen');
+    const endScr = document.getElementById('end-screen');
+    const failScr = document.getElementById('fail-screen');
+    const fuelEl = document.getElementById('fuel');
+    const timeEl = document.getElementById('time');
+    const finalFuel = document.getElementById('final-fuel');
+    const area = document.getElementById('game-area');
+
+    function startGame() {
+      tutScr.classList.add('hidden');
+      gameScr.classList.remove('hidden');
+      fuel = parseInt(localStorage.getItem("fuel"));
+      timeLeft = 20;
+      fuelEl.textContent = fuel;
+      timeEl.textContent = timeLeft;
+      spawnTimer = setInterval(spawnObject, SPAWN_INTERVAL);
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+      setTimeout(endGame, GAME_DURATION);
+    }
+
+    function endGame() {
+      clearInterval(spawnTimer);
+      clearInterval(gameTimer);
+      area.innerHTML = '';
+      gameScr.classList.add('hidden');
+      
+      // 判斷燃料是否達標
+      if (fuel >= 250) {
+        finalFuel.textContent = fuel;
+        endScr.classList.remove('hidden');
+        // 記錄燃料量
+        let currentFuel = fuel;
+        localStorage.setItem("fuel", currentFuel);
+      } else {
+        failScr.classList.remove('hidden');
+      }
+    }
+
+    function restartGame() {
+      failScr.classList.add('hidden');
+      startGame();
+    }
+
+    function spawnObject() {
+      const obj = document.createElement('div');
+      const rand = Math.random();
+      if (rand < 0.5) {
+        obj.className = 'orb blue';
+        obj.dataset.value = 10;
+        obj.innerHTML = '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/battery.png">';
+      } else if (rand < 0.7) {
+        obj.className = 'orb gold';
+        obj.dataset.value = 50;
+        obj.innerHTML = '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/lightning.png">';
+      } else {
+        obj.className = 'bomb';
+        obj.dataset.value = -100;
+        obj.innerHTML = '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/bomb.png">';
+      }
+      const size = 75;
+      const x = Math.random() * (area.clientWidth - size);
+      const y = Math.random() * (area.clientHeight - size - 40) + 40;
+      obj.style.left = x + 'px';
+      obj.style.top = y + 'px';
+      obj.addEventListener('click', collect, false);
+      obj.addEventListener('touchstart', collect, false);
+      area.appendChild(obj);
+      setTimeout(() => { obj.remove() }, 800);
+    }
+
+    function collect(e) {
+      e.stopPropagation();
+      const val = parseInt(this.dataset.value);
+      fuel += val;
+      if (fuel < 0){
+        fuel = 0;
+      }
+      fuelEl.textContent = fuel;
+      this.classList.add('pop');
+      this.removeEventListener('click', collect, false);
+      this.removeEventListener('touchstart', collect, false);
+      setTimeout(() => this.remove(), 300);
     }
   </script>
 
