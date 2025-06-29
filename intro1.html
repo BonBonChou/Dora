@@ -244,15 +244,15 @@
       }
     }
 
-    function nextStar() {
-      fuel -= 50;
-      if (fuel < 0) fuel = 0; // 避免負數
+    function nextStar() {     
       localStorage.setItem("fuel", fuel);
 
       currentIndex++;
       if (currentIndex >= stars.length) {
         location.href="https://bonbonchou.github.io/Dora/game2.html";
       } else {
+        fuel -= 50;
+        if (fuel < 0) fuel = 0; // 避免負數
         renderStar(currentIndex);
       }
     }
