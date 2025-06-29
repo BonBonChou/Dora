@@ -167,14 +167,24 @@
       }
     }
 
-    .orb img{
+    .orb.blue img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.3);  /* 看起來更大，但不裁圖 */
-      object-position: center center; /* 確保圖對齊容器中心 */
-      pointer-events: none; /* 圖片不會攔截點擊事件 */
+      transform: scale(1.3);
+      object-position: center center;
+      pointer-events: none;
     }
+
+    .orb.gold img {
+      width: 75%;
+      height: 75%;
+      object-fit: contain;
+      transform: scale(1.3);
+      object-position: center center;
+      pointer-events: none;
+    }
+
     .bomb img {
       width: 70%;
       height: 70%;
@@ -275,7 +285,8 @@
       } else if (rand < 0.7) {
         obj.className = 'orb gold';
         obj.dataset.value = 50;
-        obj.textContent = '+50';
+        obj.innerHTML = '<img src="https://i.postimg.cc/TPvZk8g7/istockphoto-2201449507-2048x2048-removebg-preview.png">';
+        // https://postimg.cc/dhnH1xWr
       } else {
         obj.className = 'bomb';
         obj.dataset.value = -100;
