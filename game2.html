@@ -239,7 +239,7 @@
   <script>
     const SPAWN_INTERVAL = 700;
     const GAME_DURATION  = 20000;
-    let fuel = 0, timeLeft = 20, gameTimer, spawnTimer;
+    let fuel = parseInt(localStorage.getItem("fuel")), timeLeft = 20, gameTimer, spawnTimer;
 
     const tutScr = document.getElementById('tutorial-screen');
     const gameScr = document.getElementById('game-screen');
