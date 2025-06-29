@@ -273,15 +273,12 @@
       gameScr.classList.add('hidden');
       
       // 判斷燃料是否達標
-      if (fuel >= 300) {
+      if (fuel >= 250) {
         finalFuel.textContent = fuel;
         endScr.classList.remove('hidden');
         // 記錄燃料量
         let currentFuel = fuel;
         localStorage.setItem("fuel", currentFuel);
-
-        //let oldFuel = parseInt(localStorage.getItem("fuel") || "0");
-        //localStorage.setItem("fuel", oldFuel + fuel);
       } else {
         failScr.classList.remove('hidden');
       }
