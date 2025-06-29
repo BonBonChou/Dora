@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>哆啦A夢宇宙的模型</title>
+  <title>介紹頁面1</title>
   <style>
     body {
       margin: 0;
@@ -46,15 +46,17 @@
 
     .container {
       position: relative;
+      max-width: 700px;
+      margin: auto;
       z-index: 1;
-      padding-top: 20vh;
+      padding-top: 5vh;
     }
 
     img.logo-img {
-      width: 80%;
+      width: 30%;
       //height: auto;
       max-width: 600px;
-      margin-top: -5em;
+      margin-top: 0em;
     }
 
     h1 {
@@ -78,27 +80,40 @@
       color: #b5fff0;
     }
 
-    .intro {
+    .fuel-status {
+      font-weight: bold;
+      color: #3b82f6; /* 淺藍色，可自訂 */
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    #knowledge-title {
+      font-size: 2em;  /* 你可以依需求調整數值 */
+      font-weight: bold; /* 也可以設為 normal, lighter 等 */
+      margin-bottom: 0.5em;
+      color: #00ffcc;
+      margin-top: 0.5em;
+      display: block;
+      max-width: 700px;
+      margin: auto;
+    }
+    #knowledge-text {
+      font-size: 1.5em;
+      line-height: 1.6;
+      margin-bottom: 1em;
       text-align: justify;
-      margin-bottom: 0em;
-      background: rgba(255,255,255,0.05);
-      padding: 0.5em;
-      border-radius: 10px;
+      padding: 0 1em;
+      max-width: 700px;
+      margin: auto;
     }
 
-    .link-bar {
-      margin-top: 3em;
-      font-size: 0.9em;
-    }
-
-    .link-bar a {
-      color: #66ccff;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-
-    .link-bar a:hover {
-      text-decoration: underline;
+    #info-link {
+      padding: 0 1em;
+      max-width: 700px;
+      margin: auto;
+      //text-align: left;
+      line-height: 1.5em;
+      margin-top: 1em;
     }
   </style>
 </head>
@@ -107,27 +122,95 @@
   <div class="stars"></div>
 
   <div class="container">
-    <div id="start-screen">
-      <img class="logo-img" src="https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png">
-      <!-- 圖片網址: https://postimg.cc/0MnjjGVJ/a3af03f8-->
-      <h4>搭上太空船進入天球儀，<br>見識宇宙的遼闊與奧祕！</h4>
-      <div class="intro">
-        <h5>大雄和朋友們進入哆啦A夢的天球儀，用維京太空船航行在星辰間，認識太陽系的行星、見證恆星的生與死，甚至直面黑洞與銀河的奧祕。宇宙劇場同名電影《哆啦A夢：宇宙的模型》內容化為這款小遊戲，邀請你親自踏上一段充滿知識與驚奇的星際冒險。</h5>
-        <h5>一場從房間出發的宇宙之旅！</h5>
-        <h3>🔍 遊戲說明</h3>
-        <p>🌌 <strong>背景故事</strong><br>你正駕駛著哆啦A夢的縮小維京太空船，進入天球儀後從太陽系出發，沿著航道前進。旅途中，你將靠完成小遊戲獲得燃料，一站站認識宇宙中的重要天體，逐步拼湊出宇宙演化的圖像。</p>
-        <p>🧠 <strong>玩法簡介</strong><br>遊戲分為 5 段旅程，每段起飛前需完成一個小遊戲補充燃料。每次探索會進入不同星體介紹頁面，了解宇宙的知識與奇觀。</p>
-        <p>🏆 <strong>目標與結局</strong><br>順利完成星際之旅，將見證宇宙的廣闊與生命的奇蹟，最後安全返回地球！</p>
-      </div>
-      <button onclick="startGame()">開始探險</button>
+    <div id="knowledge-screen">
+      <h3 id="knowledge-title"></h3>
+      <img class="logo-img" id="star-image" src="">
+      <p id="fuel" class="fuel-status"></p>
+      <p id="knowledge-text"></p>
+      <div id="info-link" class="hidden"></div>
+      <button onclick="nextStar()">繼續</button>
     </div>
-    
   </div>
 
   <script>
-    function startGame() {
-      location.href = "https://bonbonchou.github.io/Dora/game1.html";
+    let fuel = parseInt(localStorage.getItem("fuel") || "0"); // 讀取燃料值
+
+    const stars = [
+      {
+        title: "太陽",
+        image: "https://i.postimg.cc/zB2N2tJy/sun-11582-1280.jpg",
+        // https://postimg.cc/xJmBcPNQ
+        knowledge: "太陽占了太陽系總質量99%。",
+        link: [
+          { text: "展示場 3 樓：重力透鏡", url: "https://sites.google.com/view/tamwebtp/%E4%B8%89%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%98%9F%E7%B3%BB/%E9%87%8D%E5%8A%9B%E9%80%8F%E9%8F%A1"},
+          { text: "天文新知：科學家利用重力透鏡效應發現 300 億倍太陽質量的超大質量黑洞", url: "https://tam.gov.taipei/News_Content.aspx?n=EF86D8AF23B9A85B&sms=F32C4FF0AC5C2801&s=0B492D9B1ACB3DD0"}
+        ]
+      },
+      {
+        title: "水星",
+        image: "https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png",
+        knowledge: "水星是太陽系最小的行星。",
+        link: [
+          { text: "展示場 3 樓：重力透鏡", url: "https://sites.google.com/view/tamwebtp/%E4%B8%89%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%98%9F%E7%B3%BB/%E9%87%8D%E5%8A%9B%E9%80%8F%E9%8F%A1"},
+          { text: "天文新知：科學家利用重力透鏡效應發現 300 億倍太陽質量的超大質量黑洞", url: "https://tam.gov.taipei/News_Content.aspx?n=EF86D8AF23B9A85B&sms=F32C4FF0AC5C2801&s=0B492D9B1ACB3DD0"}
+        ]
+      },
+    ]
+
+    let currentIndex = 0;
+
+    window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
+      renderStar(currentIndex);
+    });
+
+    function renderStar(index) {
+      const star = stars[index];
+
+      document.getElementById("knowledge-title").textContent = star.title;
+      document.getElementById("knowledge-text").textContent = star.knowledge;
+      document.getElementById("star-image").src = star.image;
+
+      // 顯示燃料
+      document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+
+      // 連結處理
+      const linkArea = document.getElementById("info-link");
+      const info = stars[currentIndex];
+      const link = info && info.link;
+      if (link) {
+        linkArea.innerHTML = "<p>相關內容</p>";
+
+        if (Array.isArray(link)) { // 多個網址
+          link.forEach(l => {
+            linkArea.innerHTML += `<a href="${l.url}" target="_blank" style="display:block; color:#00ccff;">${l.text}</a>`;
+          });
+        }
+        else if (link.url && link.text) { // 單一網址
+          linkArea.innerHTML += `<a href="${link.url}" target="_blank" style="display:block; color:#00ccff;">${link.text}</a>`;
+        }
+        linkArea.classList.remove("hidden");
+      } else { // 沒有網址
+        linkArea.innerHTML = "";
+        linkArea.classList.add("hidden");
+      }
     }
+
+    function nextStar() {
+      fuel -= 50;
+      if (fuel < 0) fuel = 0; // 避免負數
+      localStorage.setItem("fuel", fuel);
+
+      currentIndex++;
+      if (currentIndex >= stars.length) currentIndex = 0;
+
+      renderStar(currentIndex);
+    }
+
+    function formatknowledge(knowledge) {
+  		return knowledge
+      .replace(/\n/g, '<br>') // 若你 intro 裡是用換行符號斷行，也可以加這行
+      .replace(/\s{2,}/g, ''); // 清除多餘空白
+  	}
   </script>
 
 </body>
