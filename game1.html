@@ -226,7 +226,14 @@
   <div id="end-screen" class="container hidden">
     <h1>收集完成！</h1>
     <h4>你獲得了 <span id="final-fuel"></span> 燃料！</h4>
-    <button onclick="location.href='planet_intro.html'">前往太陽系</button>
+    <button onclick="location.href='planet_intro.html'">出發！</button>
+  </div>
+
+  <!-- Not Enough Fuel -->
+  <div id="fail-screen" class="container hidden">
+    <h1>燃料不足！</h1>
+    <h4>無法啟動引擎，請再試一次。</h4>
+    <button onclick="restartGame()">重新開始</button>
   </div>
 
   <script>
@@ -237,6 +244,7 @@
     const tutScr = document.getElementById('tutorial-screen');
     const gameScr = document.getElementById('game-screen');
     const endScr = document.getElementById('end-screen');
+    const failScr = document.getElementById('fail-screen');
     const fuelEl = document.getElementById('fuel');
     const timeEl = document.getElementById('time');
     const finalFuel = document.getElementById('final-fuel');
@@ -263,15 +271,25 @@
       clearInterval(gameTimer);
       area.innerHTML = '';
       gameScr.classList.add('hidden');
-      finalFuel.textContent = fuel;
-      endScr.classList.remove('hidden');
+      
+      // 判斷燃料是否達標
+      if (fuel >= 300) {
+        finalFuel.textContent = fuel;
+        endScr.classList.remove('hidden');
+        // 記錄燃料量
+        let currentFuel = fuel;
+        localStorage.setItem("fuel", currentFuel);
 
-      let currentFuel = fuel;
-      localStorage.setItem("fuel", currentFuel);
+        //let oldFuel = parseInt(localStorage.getItem("fuel") || "0");
+        //localStorage.setItem("fuel", oldFuel + fuel);
+      } else {
+        failScr.classList.remove('hidden');
+      }
+    }
 
-      //let oldFuel = parseInt(localStorage.getItem("fuel") || "0");
-      //localStorage.setItem("fuel", oldFuel + fuel);
-
+    function restartGame() {
+      failScr.classList.add('hidden');
+      startGame();
     }
 
     function spawnObject() {
