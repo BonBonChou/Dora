@@ -309,7 +309,8 @@
 
     function spawnLoop() {
       spawnItem();
-      spawnDelay = Math.max(spawnDelay - 15); // 每次生成間隔縮短
+      spawnDelay = Math.max(spawnDelay - 15, 180); // 每次生成間隔縮短，最低 180 ms
+      console.log(spawnDelay);
       spawnTimer = setTimeout(spawnLoop, spawnDelay);
     }
     
@@ -382,7 +383,9 @@
     }
 
     function renderLife(){
-      lifeEl.innerHTML = '❤️'.repeat(life);
+      if (life >= 0){
+        lifeEl.innerHTML = '❤️'.repeat(life);
+      }
     }
 
     /* 結束流程 -------------------------------------------------------------- */
