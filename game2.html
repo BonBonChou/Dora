@@ -82,7 +82,7 @@
     #game-area {
       position: relative;
       width: 100%;
-      height: 80vh;
+      height: 100vh;
       overflow: hidden;
       cursor: pointer;
       z-index: 1;
@@ -107,8 +107,8 @@
       position: absolute;
       width: 80px;
       height: 80px;
-      bottom: 10%;
-      left: 25%;
+      bottom: 0%;
+      left: 50%;
       transform: translateX(-50%);
       transition: left 0.15s;
       z-index: 2;
@@ -144,15 +144,6 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-    }
-
-    .m1  { background: #444; }
-    .m5  { background: #555; }
-    .m10 { background: #666; }
-    .big {
-      width: 160px;
-      height: 160px;
-      background: #784b1e;
     }
 
     .power {
@@ -221,7 +212,7 @@
 
   <script>
     const area = document.getElementById('game-area');
-    const shipEl = document.getElementById('ship');
+    let shipEl = document.getElementById('ship');
     const fuelEl = document.getElementById('fuel-num');
 
     let fuel = parseInt(localStorage.getItem("fuel") || "0");
@@ -241,8 +232,8 @@
     // 小隕石尺寸
     const smallTypes = [
       { val: 1,  size: 50 },
-      { val: 5,  size: 70 },
-      { val: 10, size: 90 }
+      { val: 5,  size: 90 },
+      { val: 10, size: 130 }
     ];
     // 子彈系統 ------------------------------------------- 
     let bullets = [];
@@ -303,7 +294,8 @@
     function spawnBullet(offsetX, vy, extraY = 0) {
       const b = document.createElement('div');
       b.className = 'bullet';
-      b.style.left = (shipEl.offsetLeft + shipEl.offsetWidth / 2 + offsetX) + 'px';
+      // 根據飛船（shipEl）的位置 + offsetX（左右偏移）
+      b.style.left = (shipEl.offsetLeft +  offsetX) + 'px'; 
       b.style.top = (shipEl.offsetTop + extraY) + 'px';
       area.appendChild(b);
       bullets.push({ el: b, vy });
@@ -327,11 +319,18 @@
       const div = document.createElement('div');
       div.className = 'item';
       div.dataset.type = 'big';
-      div.dataset.hp = 25;
-      div.style.width = '160px';
-      div.style.height = '160px';
-      div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid.jpg">`;
-      randomSpawn(div, 1.5);
+      div.dataset.hp = 500;
+      div.style.width = '640px';
+      div.style.height = '480px';
+      div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid_big.jpg">`;
+      // 直接指定為畫面中間
+      div.style.position = 'absolute';
+      div.style.left = '50%';
+      div.style.top = '-480px';
+      div.style.transform = 'translateX(-50%)';
+
+      area.appendChild(div);
+      items.push({ el: div, vy: 0.5 });
     }
 
     // 隨機位置生成
@@ -368,7 +367,7 @@
     function loop() {
       // 子彈移動
       bullets.forEach(b => {
-        b.el.style.top = (b.el.offsetTop - 10) + 'px';
+        b.el.style.top = (b.el.offsetTop -10) + 'px';
       });
 
       bullets = bullets.filter(b => {
@@ -397,6 +396,8 @@
 
         // 子彈撞隕石
         bullets.forEach(b => {
+          if (obj.el.dataset.type === 'power') return;  // 🔒 忽略道具
+          if (!hitTest(b.el, obj.el)) return;
           if (hitTest(b.el, obj.el)) {
             if (obj.el.dataset.type === 'small') { // 小隕石
               if (!bigMeteorSpawned) { // 只在大隕石未出現前加燃料
@@ -518,10 +519,10 @@
       document.getElementById("fail").classList.remove("hidden");
     }
 
-    // 可選：回首頁重新挑戰
     function restartGame() {
       document.getElementById("fail").classList.add("hidden");
       document.getElementById("tut").classList.remove("hidden");
+
       fuel = parseInt(localStorage.getItem("fuel") || "0");
       fuelEarned = 0;
       fireInterval = 400;
@@ -536,14 +537,26 @@
       clearInterval(spawnTimer);
       cancelAnimationFrame(animId);
 
+      // 重設遊戲區域與飛船
       const area = document.getElementById("game-area");
       area.innerHTML = `
         <div id="ship" class="ship">
-          <img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.png">
+          <img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.jpg">
         </div>
       `;
-      document.getElementById("game").classList.add("hidden");
+
+      // 重新取得 shipEl 與綁定移動事件
+      shipEl = document.getElementById("ship");
+      shipTargetX = null;
+      shipAnimId = null;
+
+      area.addEventListener('pointerdown', moveShip);
+      area.addEventListener('pointermove', e => playing && moveShip(e));
+
+      document.getElementById("fuel-num").textContent = fuel;
     }
+
+
 
     // 大隕石觸發條件監聽
     setInterval(() => {
