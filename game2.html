@@ -201,256 +201,272 @@
   </div>
 
   <script>
-    /* ----- 常數與狀態 ----------------------------------------------------- */
-    const area   = document.getElementById('game-area');
+    const area = document.getElementById('game-area');
     const shipEl = document.getElementById('ship');
-    const fuelHUD= document.getElementById('fuel-num');
-    let fuel     = parseInt(localStorage.getItem('fuel')||'0');
-    let playing  = false;
+    const fuelEl = document.getElementById('fuel-num');
 
-    /* 移動控制 */
-    area.addEventListener('pointerdown',  e=>moveShip(e));
-    area.addEventListener('pointermove',  e=>playing && moveShip(e));
+    let fuel = parseInt(localStorage.getItem("fuel") || "0");
+    let bullets = [];
+    let items = [];
+    let fireInterval = 400;
+    let fireTimer;
+    let spawnTimer;
+    let animId;
+    let spawnDelay = 900;
+    let bigMeteorSpawned = false;
+    let multiForward = 0;
+    let multiDiagonal = 0;
+    let playing = false;
 
-    function moveShip(e){
+    // 控制飛船拖曳
+    area.addEventListener('pointerdown', moveShip);
+    area.addEventListener('pointermove', e => playing && moveShip(e));
+
+    function moveShip(e) {
       const rect = area.getBoundingClientRect();
-      let x = (e.clientX - rect.left)/rect.width;   // 0~1
-      shipEl.style.left = (x*100)+'%';
+      const x = (e.clientX - rect.left) / rect.width;
+      shipEl.style.left = (x * 100) + "%";
     }
 
-    /* ----- 子彈系統 ------------------------------------------------------- */
-    let fireInterval=400;           // 基礎射速 (ms)
-    let fireTimer;
-    let multiForward=0;             // 0 或 1 (前方加一彈)
-    let multiDiagonal=0;            // 0~2  (±斜彈對數)
-    let bullets=[];
+    // 燃料等級對應尺寸
+    const smallTypes = [
+      { val: 1,  size: 50 },
+      { val: 5,  size: 70 },
+      { val: 10, size: 90 }
+    ];
 
-    /* 生成子彈 */
-    function shoot(){
-      spawnBullet(0, -12);               // 主彈
-      if(multiForward) spawnBullet(0, -12, -20); // 前方+1
-      if(multiDiagonal){
-        for(let i=1;i<=multiDiagonal;i++){
-          spawnBullet(-6*i, -12);        // 左斜
-          spawnBullet( 6*i, -12);        // 右斜
+    // 子彈生成（連發、多發）
+    function shoot() {
+      spawnBullet(0, -12);
+      if (multiForward) {
+        spawnBullet(0, -12, -20);
+      }
+      if (multiDiagonal) {
+        for (let i = 1; i <= multiDiagonal; i++) {
+          spawnBullet(-6 * i, -12);
+          spawnBullet(6 * i, -12);
         }
       }
     }
 
-    function spawnBullet(offsetX, vy, extraY=0){
-      const b=document.createElement('div');
-      b.className='bullet';
-      const shipRect=shipEl.getBoundingClientRect();
-      b.style.left=(shipEl.offsetLeft + shipEl.offsetWidth/2 + offsetX)+'px';
-      b.style.top =(shipEl.offsetTop + extraY)+'px';
+    function spawnBullet(offsetX, vy, extraY = 0) {
+      const b = document.createElement('div');
+      b.className = 'bullet';
+      b.style.left = (shipEl.offsetLeft + shipEl.offsetWidth / 2 + offsetX) + 'px';
+      b.style.top = (shipEl.offsetTop + extraY) + 'px';
       area.appendChild(b);
-      bullets.push({el:b, vy});
+      bullets.push({ el: b, vy });
     }
 
-    /* ----- 隕石與道具 ----------------------------------------------------- */
-    let items=[];      // 小隕石 / 大隕石 / 道具
-    let spawnDelay=900;
-    let spawnTimer;
-    let bigMeteorSpawned=false;
-    const smallTypes=[
-      {cls:'m1', val:1 , img:'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/meteor1.png'},
-      {cls:'m5', val:5 , img:'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/meteor5.png'},
-      {cls:'m10',val:10, img:'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/meteor10.png'}
-    ];
+    // 小隕石生成
+    function spawnSmall() {
+      const type = smallTypes[Math.floor(Math.random() * smallTypes.length)];
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.dataset.type = 'small';
+      div.dataset.val = type.val;
+      div.style.width = type.size + 'px';
+      div.style.height = type.size + 'px';
+      div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid.jpg">`;
+      randomSpawn(div, 2 + Math.random() * 2);
+    }
 
-    /* 掉落增益圖片 (請替換為自己的) */
-    const powerImgs={
-      rapid  :'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/rapid.png',
-      forward:'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/forward.png',
-      diag   :'https://raw.githubusercontent.com/BonBonChou/Dora/main/images/diag.png'
+    // 大隕石生成
+    function spawnBig() {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.dataset.type = 'big';
+      div.dataset.hp = 25;
+      div.style.width = '160px';
+      div.style.height = '160px';
+      div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid.jpg">`;
+      randomSpawn(div, 1.5);
+    }
+
+    // 隨機位置生成
+    function randomSpawn(el, vy) {
+      el.style.left = Math.random() * (area.offsetWidth - 100) + 'px';
+      el.style.top = '-100px';
+      area.appendChild(el);
+      items.push({ el, vy });
+    }
+
+    // 增益道具圖片
+    const powerImgs = {
+      rapid:   "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/continuous_arrow.jpg",
+      forward: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/double_arrow.jpg",
+      diag:    "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/inclined_arrow.jpg"
     };
 
-    function spawnSmall(){
-      const type = smallTypes[Math.floor(Math.random()*smallTypes.length)];
-      const div = document.createElement('div');
-      div.className=`item ${type.cls}`;
-      div.dataset.type='small';
-      div.dataset.val =type.val;
-      div.innerHTML   =`<img src="${type.img}">`;
-      randomSpawn(div, 2+Math.random()*2);
-    }
+    function spawnPower(x, y) {
+      const chance = Math.random();
+      let kind = chance < 0.33 ? 'rapid' : (chance < 0.66 ? 'forward' : 'diag');
 
-    function spawnBig(){
-      const div=document.createElement('div');
-      div.className='item big';
-      div.dataset.type='big';
-      div.dataset.hp=25;                   // 需 25 發子彈
-      div.innerHTML=`<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/bigmeteor.png">`; // TODO
-      randomSpawn(div,1.5);
-    }
-
-    function spawnPower(x,y){
-      const chance=Math.random();
-      let kind='';
-      if(chance<0.33) kind='rapid';
-      else if(chance<0.66) kind='forward';
-      else kind='diag';
-      const p=document.createElement('div');
-      p.className='power';
-      p.dataset.type='power';
-      p.dataset.kind=kind;
-      p.innerHTML=`<img src="${powerImgs[kind]}" style="width:100%;height:100%">`;
-      p.style.left=x+'px';
-      p.style.top =y+'px';
+      const p = document.createElement('div');
+      p.className = 'power';
+      p.dataset.type = 'power';
+      p.dataset.kind = kind;
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      p.innerHTML = `<img src="${powerImgs[kind]}" style="width:100%; height:100%">`;
       area.appendChild(p);
-      items.push({el:p, vy:2});
+      items.push({ el: p, vy: 2 });
     }
 
-    function randomSpawn(el, vy){
-      el.style.left=Math.random()*(area.offsetWidth-80)+'px';
-      el.style.top ='-100px';
-      area.appendChild(el);
-      items.push({el, vy});
-    }
-
-    /* ----- 主遊戲迴圈 ----------------------------------------------------- */
-    let animId;
-    function loop(){
-      // 更新子彈
-      bullets.forEach(b=>{
-        b.el.style.top = (b.el.offsetTop - 10)+'px';
+    // 主遊戲迴圈
+    function loop() {
+      // 子彈移動
+      bullets.forEach(b => {
+        b.el.style.top = (b.el.offsetTop - 10) + 'px';
       });
-      bullets = bullets.filter(b=>{
-        if(b.el.offsetTop<-40){b.el.remove();return false;}
+
+      bullets = bullets.filter(b => {
+        if (b.el.offsetTop < -40) {
+          b.el.remove();
+          return false;
+        }
         return true;
       });
 
-      // 更新掉落物
-      items.forEach(obj=>{
-        obj.el.style.top=(obj.el.offsetTop+obj.vy)+'px';
+      // 隕石與道具移動與碰撞處理
+      items.forEach(obj => {
+        obj.el.style.top = (obj.el.offsetTop + obj.vy) + 'px';
 
-        /* 撿道具判定 */
-        if(obj.el.dataset.type==='power' && hitTest(obj.el,shipEl)){
+        // 撿道具
+        if (obj.el.dataset.type === 'power' && hitTest(obj.el, shipEl)) {
           applyPower(obj.el.dataset.kind);
-          obj.el.remove(); obj.vy=0;
+          obj.el.remove();
+          obj.vy = 0;
         }
 
-        /* 船撞隕石判定 */
-        if((obj.el.dataset.type==='small' || obj.el.dataset.type==='big') && hitTest(obj.el,shipEl)){
-          endFail(); return;
+        // 太空船撞隕石
+        if ((obj.el.dataset.type === 'small' || obj.el.dataset.type === 'big') && hitTest(obj.el, shipEl)) {
+          endFail();
         }
 
-        /* 子彈撞隕石 */
-        bullets.forEach(b=>{
-          if(hitTest(b.el,obj.el)){
-            if(obj.el.dataset.type==='small'){
-              fuel+=parseInt(obj.el.dataset.val);
-              fuelHUD.textContent=fuel;
-              // 道具掉落 20% 機率
-              if(Math.random()<0.2) spawnPower(obj.el.offsetLeft,obj.el.offsetTop);
-              obj.el.style.animation='explode .3s forwards';
-              setTimeout(()=>obj.el.remove(),300);
-              obj.vy=9999; // 立即移除控制
-            }else if(obj.el.dataset.type==='big'){
-              let hp=--obj.el.dataset.hp;
-              if(hp<=0){
-                fuel+=100;
-                fuelHUD.textContent=fuel;
-                obj.el.style.animation='explode .5s forwards';
-                setTimeout(()=>victory(),500);
+        // 子彈撞隕石
+        bullets.forEach(b => {
+          if (hitTest(b.el, obj.el)) {
+            if (obj.el.dataset.type === 'small') {
+              fuel += parseInt(obj.el.dataset.val);
+              fuelEl.textContent = fuel;
+
+              if (Math.random() < 0.2) {
+                spawnPower(obj.el.offsetLeft, obj.el.offsetTop);
+              }
+
+              obj.el.style.animation = 'explode .3s forwards';
+              setTimeout(() => obj.el.remove(), 300);
+              obj.vy = 9999;
+
+            } else if (obj.el.dataset.type === 'big') {
+              let hp = --obj.el.dataset.hp;
+              if (hp <= 0) {
+                fuel += 100;
+                fuelEl.textContent = fuel;
+                obj.el.style.animation = 'explode .5s forwards';
+                setTimeout(() => victory(), 500);
               }
             }
-            // 清彈
-            b.el.remove(); b.vy=0;
+
+            b.el.remove();
+            b.vy = 0;
           }
         });
       });
 
-      // 移除出畫面
-      items = items.filter(o=>{
-        if(o.vy===0) return false;
-        if(o.el.offsetTop>area.offsetHeight+120){o.el.remove();return false;}
+      items = items.filter(o => {
+        if (o.vy === 0) return false;
+        if (o.el.offsetTop > area.offsetHeight + 120) {
+          o.el.remove();
+          return false;
+        }
         return true;
       });
 
-      if(playing) animId=requestAnimationFrame(loop);
-    }
-
-    /* ----- 判定 &道具效果 -------------------------------------------------- */
-    function hitTest(a,b){
-      const ar=a.getBoundingClientRect(), br=b.getBoundingClientRect();
-      return !(
-        ar.right < br.left ||
-        ar.left  > br.right||
-        ar.bottom< br.top  ||
-        ar.top   > br.bottom
-      );
-    }
-
-    function applyPower(kind){
-      if(kind==='rapid'){
-        fireInterval=Math.max(100,fireInterval-80);
-        clearInterval(fireTimer);
-        fireTimer=setInterval(shoot,fireInterval);
-      }else if(kind==='forward'){
-        multiForward=1;
-      }else if(kind==='diag'){
-        multiDiagonal=Math.min(2,multiDiagonal+1);
+      if (playing) {
+        animId = requestAnimationFrame(loop);
       }
     }
 
-    /* ----- 流程控制 -------------------------------------------------------- */
-    function startGame(){
-      document.getElementById('tut').classList.add('hidden');
-      document.getElementById('game').classList.remove('hidden');
-      playing=true;
-      fuelHUD.textContent=fuel;
-      /* 初始化射擊 */
-      fireTimer=setInterval(shoot,fireInterval);
-      /* 小隕石生成 */
-      spawnTimer=setInterval(()=>{
-        if(!bigMeteorSpawned){
-          spawnSmall();
-          spawnDelay=Math.max(200,spawnDelay-15); // 生成間隔越來越短
-        }
-      },spawnDelay);
-      /* 主 loop */
-      animId=requestAnimationFrame(loop);
+    // 碰撞判定
+    function hitTest(a, b) {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return !(
+        ar.right < br.left ||
+        ar.left  > br.right ||
+        ar.bottom < br.top ||
+        ar.top > br.bottom
+      );
     }
 
-    function checkBigMeteor(){
-      if(fuel>=500 && !bigMeteorSpawned){
-        bigMeteorSpawned=true;
+    // 增益效果套用
+    function applyPower(kind) {
+      if (kind === 'rapid') {
+        fireInterval = Math.max(100, fireInterval - 80);
+        clearInterval(fireTimer);
+        fireTimer = setInterval(shoot, fireInterval);
+      } else if (kind === 'forward') {
+        multiForward = 1;
+      } else if (kind === 'diag') {
+        multiDiagonal = Math.min(2, multiDiagonal + 1);
+      }
+    }
+
+    // 主流程控制
+    function startGame() {
+      document.getElementById("tut").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      playing = true;
+      fuelEl.textContent = fuel;
+
+      fireTimer = setInterval(shoot, fireInterval);
+      spawnTimer = setInterval(() => {
+        if (!bigMeteorSpawned) {
+          spawnSmall();
+          spawnDelay = Math.max(200, spawnDelay - 15);
+        }
+      }, spawnDelay);
+
+      animId = requestAnimationFrame(loop);
+    }
+
+    function checkBigMeteor() {
+      if (fuel >= 500 && !bigMeteorSpawned) {
+        bigMeteorSpawned = true;
         clearInterval(spawnTimer);
         spawnBig();
       }
     }
 
-    function victory(){
-      playing=false;
-      clearInterval(spawnTimer);clearInterval(fireTimer);cancelAnimationFrame(animId);
-      localStorage.setItem('fuel',fuel);
-      document.getElementById('game').classList.add('hidden');
-      document.getElementById('fuel-final').textContent=fuel;
-      document.getElementById('success').classList.remove('hidden');
-    }
-
-    function endFail(){
-      playing=false;
-      clearInterval(spawnTimer);clearInterval(fireTimer);cancelAnimationFrame(animId);
-      document.getElementById('game').classList.add('hidden');
-      document.getElementById('fail').classList.remove('hidden');
-    }
-
-    function restartGame(){
-      // 隱藏失敗畫面，顯示教學頁
-      document.getElementById('fail').classList.add('hidden');
-      document.getElementById('tut').classList.remove('hidden');
-      document.getElementById('success').classList.add('hidden');
-      document.getElementById('game').classList.add('hidden');
-
-      // 停止所有計時器與動畫
-      clearInterval(fireTimer);
+    function victory() {
+      playing = false;
       clearInterval(spawnTimer);
+      clearInterval(fireTimer);
       cancelAnimationFrame(animId);
 
-      // 重設狀態變數
-      fuel = parseInt(localStorage.getItem('fuel') || '0');
+      localStorage.setItem("fuel", fuel);
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("success").classList.remove("hidden");
+      document.getElementById("fuel-final").textContent = fuel;
+    }
+
+    function endFail() {
+      playing = false;
+      clearInterval(spawnTimer);
+      clearInterval(fireTimer);
+      cancelAnimationFrame(animId);
+
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("fail").classList.remove("hidden");
+    }
+
+    // 可選：回首頁重新挑戰
+    function restartGame() {
+      document.getElementById("fail").classList.add("hidden");
+      document.getElementById("tut").classList.remove("hidden");
+      fuel = parseInt(localStorage.getItem("fuel") || "0");
       fireInterval = 400;
       multiForward = 0;
       multiDiagonal = 0;
@@ -459,21 +475,22 @@
       bullets = [];
       items = [];
 
-      // 清除畫面元素
-      const area = document.getElementById('game-area');
+      clearInterval(fireTimer);
+      clearInterval(spawnTimer);
+      cancelAnimationFrame(animId);
+
+      const area = document.getElementById("game-area");
       area.innerHTML = `
         <div id="ship" class="ship">
           <img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.png">
         </div>
       `;
-
-      // 重設飛船 DOM 與事件（如你希望可拖移）
-      const shipEl = document.getElementById('ship');
-      shipEl.style.left = '25%';
+      document.getElementById("game").classList.add("hidden");
     }
 
-    /* 監看 fuel 達 500 時觸發大隕石 */
-    setInterval(checkBigMeteor,500);
+    // 大隕石條件監聽
+    setInterval(checkBigMeteor, 500);
+
   </script>
 </body>
 </html>
