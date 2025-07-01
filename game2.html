@@ -67,6 +67,18 @@
       margin: 0 0 1em;
     }
 
+    .intro {
+      text-align: justify;
+      background: rgba(255,255,255,0.05);
+      padding: 1em;
+      width: fit-content;     /* 核心：自動根據內容寬度調整 */
+      max-width: 100%;        /* 防止太長時超出畫面 */
+      border-radius: 10px;
+      margin: 0 auto 1.5em auto;  /* 水平置中 */
+      margin-bottom: 1.5em;
+      font-size: 1em;
+    }
+
     #game-area {
       position: relative;
       width: 100%;
@@ -156,6 +168,13 @@
         opacity: 0;
       }
     }
+
+    .fuel-status {
+      font-weight: bold;
+      color: #00ccff;
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+    }
   </style>
 </head>
 <body>
@@ -164,13 +183,12 @@
   <!-- 教學 -->
   <div id="tut" class="container">
     <h1>清除障礙物</h1>
-    <h4>即將進入小行星帶，請清除眼前障礙物！</h4>
+    <h4>進入小行星帶，清除障礙物！</h4>
+    <p id="fuel" class="fuel-status"></p>
     <div class="intro">
       <p>拖曳／點擊移動飛船，自動射擊粉碎隕石！</p>
       <p>🛢️ 擊碎不同隕石增加不同燃料（+1 / +5 / +10 / +100）</p>
       <p>💥 碰到隕石即失敗</p>
-      <p>🔰 隨機掉落增益：</p>
-      <p>🔫 連發、正向多發、斜向多發</p>
     </div>
     <button onclick="startGame()">開始遊戲</button>
   </div>
@@ -182,22 +200,23 @@
     </div>
     <div id="game-area">
       <div id="ship" class="ship">
-        <img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.png">
+        <img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.jpg">
       </div>
     </div>
   </div>
 
   <!-- 成功 -->
   <div id="success" class="container hidden">
-    <h1>任務達成！</h1>
-    <h4>總燃料 <span id="fuel-final"></span></h4>
-    <button onclick="location.href='intro2.html'">下一站</button>
+    <h1>成功通過小行星帶！</h1>
+    <h4>剩餘 <span id="fuel-final"></span> 燃料</h4>
+    <button onclick="location.href='intro2.html'">繼續</button>
   </div>
 
   <!-- 失敗 -->
   <div id="fail" class="container hidden">
-    <h1>被隕石撞毀！</h1>
-    <button onclick="restartGame()">再挑戰</button>
+    <h1>大夢初醒！</h1>
+    <h4>你發呆了一下<br>卻彷彿看見小行星撞上太空船<br>但你沒空理會這個幻覺<br>必須專注在眼前，通過小行星帶！</h4>
+    <button onclick="restartGame()">再次挑戰</button>
   </div>
 
   <script>
@@ -217,6 +236,14 @@
     let multiForward = 0;
     let multiDiagonal = 0;
     let playing = false;
+    let shipTargetX = null;
+    let shipAnimId = null;
+
+
+    /* 初始化 ---------------------------------------------------------------- */
+    window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
+      document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+    });
 
     // 控制飛船拖曳
     area.addEventListener('pointerdown', moveShip);
@@ -225,7 +252,24 @@
     function moveShip(e) {
       const rect = area.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
-      shipEl.style.left = (x * 100) + "%";
+      shipTargetX = x * 100;
+      if (!shipAnimId) smoothMove();
+    }
+
+    function smoothMove() {
+      if (shipTargetX === null) return;
+
+      const currentLeft = parseFloat(shipEl.style.left || "0");
+      const diff = shipTargetX - currentLeft;
+
+      if (Math.abs(diff) < 0.5) {
+        shipEl.style.left = shipTargetX + "%";
+        shipAnimId = null;
+        return;
+      }
+
+      shipEl.style.left = (currentLeft + diff * 0.15) + "%";
+      shipAnimId = requestAnimationFrame(smoothMove);
     }
 
     // 燃料等級對應尺寸
@@ -293,9 +337,9 @@
 
     // 增益道具圖片
     const powerImgs = {
-      rapid:   "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/continuous_arrow.jpg",
+      rapid: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/continuous_arrow.jpg",
       forward: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/double_arrow.jpg",
-      diag:    "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/inclined_arrow.jpg"
+      diag: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/inclined_arrow.jpg"
     };
 
     function spawnPower(x, y) {
