@@ -225,22 +225,34 @@
     const fuelEl = document.getElementById('fuel-num');
 
     let fuel = parseInt(localStorage.getItem("fuel") || "0");
-    let bullets = [];
+    let fuelEarned  = 0;
+    
     let items = [];
-    let fireInterval = 400;
-    let fireTimer;
+    
     let spawnTimer;
     let animId;
     let spawnDelay = 900;
     let bigMeteorSpawned = false;
-    let multiForward = 0;
-    let multiDiagonal = 0;
+    
     let playing = false;
     let shipTargetX = null;
     let shipAnimId = null;
 
+    // 小隕石尺寸
+    const smallTypes = [
+      { val: 1,  size: 50 },
+      { val: 5,  size: 70 },
+      { val: 10, size: 90 }
+    ];
+    // 子彈系統 ------------------------------------------- 
+    let bullets = [];
+    let fireInterval = 400;
+    let fireTimer;
+    let multiForward = 0;
+    let multiDiagonal = 0;
 
-    /* 初始化 ---------------------------------------------------------------- */
+
+    // 初始化 ---------------------------------------------------------------- 
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
       document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
     });
@@ -272,12 +284,7 @@
       shipAnimId = requestAnimationFrame(smoothMove);
     }
 
-    // 燃料等級對應尺寸
-    const smallTypes = [
-      { val: 1,  size: 50 },
-      { val: 5,  size: 70 },
-      { val: 10, size: 90 }
-    ];
+    
 
     // 子彈生成（連發、多發）
     function shoot() {
@@ -391,9 +398,13 @@
         // 子彈撞隕石
         bullets.forEach(b => {
           if (hitTest(b.el, obj.el)) {
-            if (obj.el.dataset.type === 'small') {
-              fuel += parseInt(obj.el.dataset.val);
-              fuelEl.textContent = fuel;
+            if (obj.el.dataset.type === 'small') { // 小隕石
+              if (!bigMeteorSpawned) { // 只在大隕石未出現前加燃料
+                fuelEarned += parseInt(obj.el.dataset.val);
+
+                fuel += parseInt(obj.el.dataset.val);
+                fuelEl.textContent = fuel;
+              }             
 
               if (Math.random() < 0.2) {
                 spawnPower(obj.el.offsetLeft, obj.el.offsetTop);
@@ -401,9 +412,9 @@
 
               obj.el.style.animation = 'explode .3s forwards';
               setTimeout(() => obj.el.remove(), 300);
-              obj.vy = 9999;
+              obj.vy = 9999; // 移除控制
 
-            } else if (obj.el.dataset.type === 'big') {
+            } else if (obj.el.dataset.type === 'big') { // 大隕石
               let hp = --obj.el.dataset.hp;
               if (hp <= 0) {
                 fuel += 100;
@@ -418,7 +429,7 @@
           }
         });
       });
-
+      /* 清理落出畫面 */
       items = items.filter(o => {
         if (o.vy === 0) return false;
         if (o.el.offsetTop > area.offsetHeight + 120) {
@@ -463,6 +474,7 @@
       document.getElementById("tut").classList.add("hidden");
       document.getElementById("game").classList.remove("hidden");
       playing = true;
+      fuelEarned = 0;
       fuelEl.textContent = fuel;
 
       fireTimer = setInterval(shoot, fireInterval);
@@ -511,6 +523,7 @@
       document.getElementById("fail").classList.add("hidden");
       document.getElementById("tut").classList.remove("hidden");
       fuel = parseInt(localStorage.getItem("fuel") || "0");
+      fuelEarned = 0;
       fireInterval = 400;
       multiForward = 0;
       multiDiagonal = 0;
@@ -532,8 +545,14 @@
       document.getElementById("game").classList.add("hidden");
     }
 
-    // 大隕石條件監聽
-    setInterval(checkBigMeteor, 500);
+    // 大隕石觸發條件監聽
+    setInterval(() => {
+      if (fuelEarned >= 500 && !bigMeteorSpawned) {
+        bigMeteorSpawned = true;
+        clearInterval(spawnTimer);  // 停產小隕石
+        spawnBig();
+      }
+    }, 400);
 
   </script>
 </body>
