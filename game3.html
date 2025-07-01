@@ -152,19 +152,19 @@
     /* 太空船 & 掉落物 -------------------------------------------------------- */
     .spaceship {
       position:absolute;
-      width:225px;
-      height:225px;
+      width:120px;
+      height:120px;
       bottom:0%;
       left:25%;
       transform:translateX(-50%);
       z-index:2;
-      transition:left .15s
+      transition:left .15s;
     }
     .spaceship img {
       width:100%;
       height:100%;
       object-fit:contain;
-      pointer-events:none
+      pointer-events:none;
     }
 
     .item {
@@ -262,7 +262,7 @@
     /* 全局常數 -------------------------------------------------------------- */
     const LANE_LEFT = 'left', LANE_RIGHT = 'right';
     const ITEM_INTERVAL = 900;        // 生成頻率 (ms)
-    const ITEM_FALL_SPEED = 3;        // 初始落下速度 (px/帧)
+    const ITEM_FALL_SPEED = 4;        // 初始落下速度 (px/帧)
     const SPEED_GAIN = 0.002;         // 每帧加速度
     const FUEL_GAIN = 20;
     const LIFE_START = 3;
@@ -285,7 +285,7 @@
     let items = [];
     let spawnTimer, animId;
     let currentSpeed = ITEM_FALL_SPEED;
-    let spawnDelay = 900; // 初始間隔
+    let spawnDelay = 1000; // 初始間隔
 
     /* 初始化 ---------------------------------------------------------------- */
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
@@ -311,7 +311,6 @@
     function spawnLoop() {
       spawnItem();
       spawnDelay = Math.max(spawnDelay - 15, 180); // 每次生成間隔縮短，最低 180 ms
-      console.log(spawnDelay);
       spawnTimer = setTimeout(spawnLoop, spawnDelay);
     }
     
@@ -323,7 +322,7 @@
       div.className = `item ${type}`;
       div.dataset.type = type;
       div.dataset.lane = Math.random() < 0.5 ? LANE_LEFT : LANE_RIGHT;
-      div.style.left = div.dataset.lane===LANE_LEFT? '25%' : '75%'; // 左車道，物品的 left 屬性為 25%：右車道，則為 75%
+      div.style.left = div.dataset.lane === LANE_LEFT ? '25%' : '75%'; // 左車道，物品的 left 屬性為 25%：右車道，則為 75%
       div.style.transform = 'translateX(-50%)';
       div.style.top = '-80px';
       div.style.backgroundSize='contain';
