@@ -237,7 +237,7 @@
     ];
     // 子彈系統 ------------------------------------------- 
     let bullets = [];
-    let fireInterval = 400;
+    let fireInterval = 500;
     let fireTimer;
     let multiForward = 0;
     let multiDiagonal = 0;
@@ -246,6 +246,7 @@
     // 初始化 ---------------------------------------------------------------- 
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
       document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+      localStorage.setItem("fuel",0) // 測試用!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     });
 
     // 控制飛船拖曳
@@ -279,26 +280,50 @@
 
     // 子彈生成（連發、多發）
     function shoot() {
-      spawnBullet(0, -12);
-      if (multiForward) {
-        spawnBullet(0, -12, -20);
+      const bullet_speed = -10;
+      // 單發最少發一發，從1開始算
+
+      // 如果 multiForward 是奇數：中間一發 + 左右對稱發
+      // 如果 multiForward 是偶數：沒有中間發，只有左右對稱發
+
+      const count = multiForward + 1 || 1;  // 預設1發
+      const spacing = 15;               // 每發子彈左右間隔距離（可調）
+
+      if (count % 2 === 1) {
+        // 奇數發，先射中間一發
+        spawnBullet(0, bullet_speed, -20);
       }
+
+      // 左右對稱射擊（排除中間發）
+      const sideCount = Math.floor(count / 2);
+
+      for (let i = 1; i <= sideCount; i++) {
+        spawnBullet(-spacing * i, bullet_speed, -20); // 左邊子彈
+        spawnBullet(spacing * i, bullet_speed, -20);  // 右邊子彈
+      }
+      // ----------------------------------------------------------------
       if (multiDiagonal) {
+        const vx = 1;  // 控制子彈水平移動速度，值越大越斜
         for (let i = 1; i <= multiDiagonal; i++) {
-          spawnBullet(-6 * i, -12);
-          spawnBullet(6 * i, -12);
+          spawnBullet(0, bullet_speed, 0,  -vx * i); // 左斜
+          spawnBullet(0, bullet_speed, 0,  vx * i);
         }
       }
     }
 
-    function spawnBullet(offsetX, vy, extraY = 0) {
+    function spawnBullet(offsetX, vy, extraY = 0, vx = 0) {
       const b = document.createElement('div');
       b.className = 'bullet';
       // 根據飛船（shipEl）的位置 + offsetX（左右偏移）
       b.style.left = (shipEl.offsetLeft +  offsetX) + 'px'; 
       b.style.top = (shipEl.offsetTop + extraY) + 'px';
+      // 🔁 加旋轉角度
+      if (vx !== 0) {
+        const angle = Math.atan2(vx, -vy) * (180 / Math.PI); // Math.atan2(y, x) = (x,y) 在直角坐標中與 x 軸正向夾角
+        b.style.transform = `rotate(${angle}deg)`;
+      }
       area.appendChild(b);
-      bullets.push({ el: b, vy });
+      bullets.push({ el: b, vy, vx });
     }
 
     // 小隕石生成
@@ -311,7 +336,7 @@
       div.style.width = type.size + 'px';
       div.style.height = type.size + 'px';
       div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid.jpg">`;
-      randomSpawn(div, 2 + Math.random() * 2);
+      randomSpawn(div, 1 + Math.random() * 2);
     }
 
     // 大隕石生成
@@ -319,9 +344,9 @@
       const div = document.createElement('div');
       div.className = 'item';
       div.dataset.type = 'big';
-      div.dataset.hp = 500;
+      div.dataset.hp = 80000;
       div.style.width = '640px';
-      div.style.height = '480px';
+      div.style.height = '640px';
       div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid_big.jpg">`;
       // 直接指定為畫面中間
       div.style.position = 'absolute';
@@ -330,7 +355,14 @@
       div.style.transform = 'translateX(-50%)';
 
       area.appendChild(div);
-      items.push({ el: div, vy: 0.5 });
+      // 建立一個浮點 y 座標（對應 top: -480px）
+      const obj = {
+        el: div,
+        vy: 0.25,
+        y: -480  // 👈 初始位置，之後每幀都加 vy
+      };
+
+      items.push(obj);
     }
 
     // 隨機位置生成
@@ -358,20 +390,21 @@
       p.dataset.kind = kind;
       p.style.left = x + 'px';
       p.style.top = y + 'px';
-      p.innerHTML = `<img src="${powerImgs[kind]}" style="width:100%; height:100%">`;
+      p.innerHTML = `<img src="${powerImgs[kind]}" style="width:150%; height:150%">`;
       area.appendChild(p);
-      items.push({ el: p, vy: 2 });
+      items.push({ el: p, vy: 4 });
     }
 
     // 主遊戲迴圈
     function loop() {
       // 子彈移動
       bullets.forEach(b => {
-        b.el.style.top = (b.el.offsetTop -10) + 'px';
+        b.el.style.top = (b.el.offsetTop + b.vy) + 'px';
+        b.el.style.left = (b.el.offsetLeft + b.vx) + 'px';
       });
 
       bullets = bullets.filter(b => {
-        if (b.el.offsetTop < -40) {
+        if (b.el.offsetTop < -10) {
           b.el.remove();
           return false;
         }
@@ -380,7 +413,12 @@
 
       // 隕石與道具移動與碰撞處理
       items.forEach(obj => {
-        obj.el.style.top = (obj.el.offsetTop + obj.vy) + 'px';
+        if (obj.el.dataset.type === 'big') {
+          obj.y += obj.vy;                     // 用浮點數更新位置
+          obj.el.style.top = obj.y + 'px';     // 將浮點 y 寫入 style.top
+        } else {
+          obj.el.style.top = (obj.el.offsetTop + obj.vy) + 'px'; // 其他物件照舊
+        }
 
         // 撿道具
         if (obj.el.dataset.type === 'power' && hitTest(obj.el, shipEl)) {
@@ -401,9 +439,15 @@
           if (hitTest(b.el, obj.el)) {
             if (obj.el.dataset.type === 'small') { // 小隕石
               if (!bigMeteorSpawned) { // 只在大隕石未出現前加燃料
-                fuelEarned += parseInt(obj.el.dataset.val);
+                let val = parseInt(obj.el.dataset.val);
 
-                fuel += parseInt(obj.el.dataset.val);
+                // ❗ 調整 val，避免超過 500
+                if (fuelEarned + val > 500) {
+                  val = 500 - fuelEarned;
+                }
+
+                fuelEarned += val;
+                fuel += val;
                 fuelEl.textContent = fuel;
               }             
 
@@ -416,13 +460,16 @@
               obj.vy = 9999; // 移除控制
 
             } else if (obj.el.dataset.type === 'big') { // 大隕石
-              let hp = --obj.el.dataset.hp;
-              if (hp <= 0) {
+              let hp = --obj.hp;
+              obj.el.dataset.hp = hp;
+              if (hp === 0) {
                 fuel += 100;
                 fuelEl.textContent = fuel;
                 obj.el.style.animation = 'explode .5s forwards';
                 setTimeout(() => victory(), 500);
               }
+
+              console.log(hp);
             }
 
             b.el.remove();
@@ -460,13 +507,13 @@
     // 增益效果套用
     function applyPower(kind) {
       if (kind === 'rapid') {
-        fireInterval = Math.max(100, fireInterval - 80);
+        fireInterval = Math.max(180, fireInterval - 80);
         clearInterval(fireTimer);
         fireTimer = setInterval(shoot, fireInterval);
       } else if (kind === 'forward') {
-        multiForward = 1;
+        multiForward = Math.min(6, multiForward + 1);
       } else if (kind === 'diag') {
-        multiDiagonal = Math.min(2, multiDiagonal + 1);
+        multiDiagonal = Math.min(4, multiDiagonal + 1);;
       }
     }
 
