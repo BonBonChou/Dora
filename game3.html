@@ -135,7 +135,7 @@
       transform: translateX(-50%);
       display: flex;
       gap: 2em;
-      font-size: 2.5em;
+      font-size: 1.5em;
       z-index: 3;
     }
     .hud > div {
@@ -184,18 +184,18 @@
       box-shadow:0 0 10px #4ec3ff
     }
     .item.fuel img {
-      width:100%;
-      height:100%;
-      object-fit:contain
+      width:150%;
+      height:150%;
+      object-fit:contain;
     }
     .item.bomb {
       background:#ff4d4d;
       box-shadow:0 0 12px #ff4d4d
     }
     .item.bomb img {
-      width:100%;
-      height:100%;
-      object-fit:contain
+      width:80%;
+      height:80%;
+      object-fit:contain;
     }
     /* 彈出動畫 */
     @keyframes pop{
@@ -223,8 +223,8 @@
     <h4>即將離開太陽系，需補充燃料！</h4>
     <p id="fuel" class="fuel-status"></p>
     <div class="intro">
-      <p>點擊螢幕切換左右，撿燃料避炸彈</p>
-      <p>🛢️ 燃料　+20<br>💣 炸彈　-1 ❤️</p>
+      <p>點擊螢幕切換左右，撿燃料避流星體！</p>
+      <p>燃料　+20<br>流星體　-1 ❤️</p>
       <p>❤️歸零，遊戲結束</p>
     </div>
     <button onclick="startGame()">開始遊戲</button>
@@ -304,13 +304,13 @@
       animId = requestAnimationFrame(update);
 
       setInterval(() => {
-        currentSpeed += 0.3;  // 每秒加速
+        currentSpeed += 0.25;  // 每秒加速
       }, 1000);
     }
 
     function spawnLoop() {
       spawnItem();
-      spawnDelay = Math.max(spawnDelay - 15, 180); // 每次生成間隔縮短，最低 180 ms
+      spawnDelay = Math.max(spawnDelay - 10, 230); // 每次生成間隔縮短，最低 180 ms
       spawnTimer = setTimeout(spawnLoop, spawnDelay);
     }
     
@@ -328,7 +328,7 @@
       div.style.backgroundSize='contain';
       div.innerHTML = type==='fuel'
         ? '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/battery.png">'
-        : '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/bomb.png">';
+        : '<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid_big.jpg">';
       area.appendChild(div);
       items.push({el:div, y:-80, speed:currentSpeed}); // el: 物品的 DOM 元素 (div)
     }
@@ -355,11 +355,11 @@
         }
 
         // 移出畫面刪除
-        if ( obj.y > area.offsetHeight + 80 ) {
+        if ( obj.y > area.offsetHeight + 10 ) {
           obj.el.remove();
         }
       });
-      items = items.filter ( i => i. y <= area.offsetHeight + 80 );
+      items = items.filter ( i => i. y <= area.offsetHeight + 10 );
       if ( life > 0 ) {
         animId = requestAnimationFrame(update);
       }
