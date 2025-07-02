@@ -205,7 +205,7 @@ const barWrap   = document.getElementById('progress-wrapper');
 const bar       = document.getElementById('progress-bar');
 const fuelHUD   = document.getElementById('fuel');
 
-let fuel        = 100;//parseInt(localStorage.getItem('fuel') || '0');
+let fuel        = parseInt(localStorage.getItem('fuel') || '0');
 let progress    = 0;         // 0~100
 let playing     = false;
 let startTime    = 0;
@@ -216,7 +216,7 @@ let animId;
 
 /* ===== 初始化 ===== */
 window.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+  document.getElementById("fuel-start").textContent = `剩餘 ${fuel} 燃料`;
 });
 
 /* ===== 主流程 ===== */
@@ -305,6 +305,21 @@ function fail(){
 function restartGame(){
   document.getElementById('fail').classList.add('hidden');
   document.getElementById('tut').classList.remove('hidden');
+  // 重設進度條與 UI
+  progress = 25;
+  updateBar();
+
+  // 重設燃料值
+  fuel = parseInt(localStorage.getItem('fuel') || '0');
+  fuelHUD.textContent = `剩餘 ${fuel} 燃料`;
+
+  // 重設時間與狀態
+  startTime = performance.now();
+  lastTime = performance.now();
+  playing = false;
+
+  // 確保不會重複動畫
+  cancelAnimationFrame(animId);
 }
 </script>
 </body>
