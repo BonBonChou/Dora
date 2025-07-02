@@ -7,132 +7,142 @@
 
 <style>
 body{
-  margin:0;
-  background:transparent;
-  font-family:'Noto Sans TC',sans-serif;
-  color:#fff;
-  text-align:center;
+  margin: 0;
+  background: transparent;
+  font-family: 'Noto Sans TC',sans-serif;
+  color: #fff;
+  text-align: center;
 }
 .stars{
-  position:fixed;
-  width:100%;height:100%;
-  background:url('https://raw.githubusercontent.com/BonBonChou/Dora/main/images/stars.jpeg') repeat-y center/cover;
-  animation:scrollStars 60s linear infinite;
-  opacity:.8;z-index:0;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: url('https://raw.githubusercontent.com/BonBonChou/Dora/main/images/stars.jpeg') repeat-y center/cover;
+  animation: scrollStars 60s linear infinite;
+  opacity: .8;
+  z-index: 0;
 }
 @keyframes scrollStars{
-  from{background-position:0 0}to{background-position:0 1000px}
+  from { background-position:0 0} to { background-position:0 1000px}
 }
-.hidden{display:none}
+.hidden {display: none}
 
 button {
-  margin:1em;
-  padding:.75em 2em;
-  font-size:1.2em;
-  border-radius:12px;
-  border:none;
-  cursor:pointer;
-  background:#1e90ff;
-  color:#fff;
-  transition:background .3s;
+  margin: 1em;
+  padding: .75em 2em;
+  font-size: 1.2em;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #1e90ff;
+  color: #fff;
+  transition: background .3s;
 }
-button:hover {background:#63b3ed}
+button:hover { background:#63b3ed}
 .container {
-  position:relative;
-  z-index:1;
-  padding:10vh 2em 2em;
-  max-width:650px;
-  margin:auto;
+  position: relative;
+  z-index: 1;
+  padding: 10vh 2em 2em;
+  max-width: 650px;
+  margin: auto;
 }
 h1 {
-  font-size:2.3em;
-  margin:.2em 0;
+  font-size: 2.3em;
+  margin: .2em 0;
 }
+
 h4 {
-  font-size:1.4em;
-  color:#00ffcc;
-  margin:0 0 1em
+  font-size: 1.4em;
+  color: #00ffcc;
+  margin: 0 0 1em
+}
+
+.intro {
+  text-align: justify;
+  background: rgba(255,255,255,0.05);
+  padding: 1em;
+  width: fit-content;     /* 核心：自動根據內容寬度調整 */
+  max-width: 100%;        /* 防止太長時超出畫面 */
+  border-radius: 10px;
+  margin: 0 auto 1.5em auto;  /* 水平置中 */
+  margin-bottom: 1.5em;
+  font-size: 1.4em;
 }
 
 /* ===== 遊戲畫面 ===== */
 #game-area {
-  position:relative;
-  width:100%;
-  height:90vh;
-  overflow:hidden;
-  cursor:pointer;
-  z-index:1;
+  position: relative;
+  width: 100%;
+  height: 90vh;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
 }
 .hud {
-  position:absolute;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:2em;
-  font-size:2em;
-  z-index:3;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2em;
+  font-size: 2em;
+  z-index: 3;
 }
-.hud div {white-space:nowrap}
+.hud div { white-space:nowrap}
 
 /* 黑洞 & 飛船 */
 .blackhole {
-  position:absolute;
-  left:50%;
-  bottom:5%;
-  transform:translate(-50%,-50%);
-  width:200px;
-  height:200px;
-  border-radius:50%;
-  overflow:hidden;
-  pointer-events:none;
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translate(-50%,-50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%; /* 將元素變成圓形*/
+  overflow: hidden; /* 隱藏超出圓形的內容，確保圖片只顯示在圓形區域內*/
+  pointer-events: none;
 }
 .blackhole img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  animation:spin 4s linear infinite;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 讓圖片以「填滿並裁剪」方式完整覆蓋黑洞範圍，不變形*/
+  animation: spin 4s linear infinite;
 }
-@keyframes spin {to{transform:rotate(360deg)}}
+@keyframes spin { to{transform:rotate(360deg);}}
 .ship {
   position:absolute;
-  left:50%;
-  top:40%;
+  left: 50%;
+  top: 40%;
   transform:translateX(-50%);
-  width:80px;
-  height:80px;
-  pointer-events:none;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
 }
 .ship img {
-  width:100%;
-  height:100%;
-  object-fit:contain}
+  width: 100%;
+  height: 100%;
+  object-fit: contain
+}
 
 /* 進度條 */
 #progress-wrapper {
-  position:absolute;
-  bottom:15%;
-  left:50%;
-  transform:translateX(-50%);
-  width:70%;
-  height:24px;
-  border:2px solid #fff;
-  border-radius:12px;
-  overflow:hidden;
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 24px;
+  border: 2px solid #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 #progress-bar {
-  width:0;
-  height:100%;
-  background:#29dfff;
-  transition:width .05s linear;
+  width: 0;
+  height: 100%;
+  background: #29dfff;
+  transition: width .05s linear;
 }
 
-/* 成功/失敗文字 */
-.result-title {
-  font-size:2em;
-  margin-bottom:.5em;
-  color:#00ffcc;
-}
 
 .fuel-status {
   font-weight: bold;
@@ -147,11 +157,12 @@ h4 {
 
 <!-- 教學 -->
 <div id="tut" class="container">
-  <h1>快速逃離黑洞</h1>
-  <h4>瘋狂點擊推進器！</h4>
-  <p id="fuel" class="fuel-status"></p>
+  <h1>逃離黑洞</h1>
+  <h4>不小心離黑洞太近，快要掉入事件視界內了！</h4>
+  <p id="fuel-start" class="fuel-status"></p>
   <div class="intro">
-    <p>每次 <strong>點擊 / 觸控</strong> 消耗 1 燃料並提升逃脫進度。</p>
+    <p>瘋狂點擊螢幕，加速推進器！</p>
+    <p>每次 <strong>點擊</strong> 消耗 1 燃料並提升逃脫進度。</p>
     <p>進度條自動下降，填滿即成功，歸零即被黑洞吞噬！</p>
   </div>
   <button onclick="startGame()">開始遊戲</button>
@@ -163,7 +174,7 @@ h4 {
     <p id="fuel" class="fuel-status"></p>
   </div>
   <div id="game-area">
-    <div class="blackhole"><img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/black_hole.jpg"></div>
+    <div class="blackhole"><img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/bh_game4.jpg"></div>
     <div class="ship" id="ship"><img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/ship.jpg"></div>
 
     <div id="progress-wrapper">
@@ -174,15 +185,15 @@ h4 {
 
 <!-- 成功 -->
 <div id="success" class="container hidden">
-  <h1 class="result-title">成功脫離黑洞！</h1>
+  <h1>成功脫離黑洞！</h1>
   <h4>剩餘 <span id="fuel-final"></span> 燃料</h4>
   <button onclick="location.href='intro4.html'">繼續航行</button>
 </div>
 
 <!-- 失敗 -->
 <div id="fail" class="container hidden">
-  <h1 class="result-title">墜入黑洞…</h1>
-  <h4>再試一次，也許能逃出生天！</h4>
+  <h1>大夢初醒！</h1>
+  <h4>你發呆了一下<br>卻彷彿看見太空船墜入黑洞<br>但你沒空理會這個幻覺<br>必須專注在眼前，逃離黑洞！</h4>
   <button onclick="restartGame()">重新挑戰</button>
 </div>
 
@@ -194,11 +205,12 @@ const barWrap   = document.getElementById('progress-wrapper');
 const bar       = document.getElementById('progress-bar');
 const fuelHUD   = document.getElementById('fuel');
 
-let fuel        = parseInt(localStorage.getItem('fuel') || '0');
+let fuel        = 100;//parseInt(localStorage.getItem('fuel') || '0');
 let progress    = 0;         // 0~100
 let playing     = false;
+let startTime    = 0;
 let lastTime    = 0;
-const DECAY_RATE = 12;       // 每秒自動下降百分比
+const DECAY_RATE = 18;       // 每秒自動下降百分比
 const GAIN_PER_CLICK = 5;    // 每點增加進度
 let animId;
 
@@ -212,9 +224,10 @@ function startGame(){
   document.getElementById('tut').classList.add('hidden');
   document.getElementById('game').classList.remove('hidden');
 
-  fuelHUD.textContent = fuel;
+  fuelHUD.textContent = `剩餘 ${fuel} 燃料`;
   progress = 25;
   updateBar();
+  startTime = performance.now();
   lastTime = performance.now();
   playing = true;
 
@@ -223,10 +236,9 @@ function startGame(){
 }
 
 function clickHandler(){
-  if (!playing) return;
-  if (fuel <= 0) return;
+  if (!playing || fuel <= 0) return;
   fuel--;
-  fuelHUD.textContent = fuel;
+  fuelHUD.textContent = `剩餘 ${fuel} 燃料`;
   progress = Math.min(100, progress + GAIN_PER_CLICK);
   updateBar();
   moveShip();
@@ -237,8 +249,12 @@ function loop(now){
   const dt = (now - lastTime) / 1000;   // 秒
   lastTime = now;
 
+  const elapsed = (now - startTime) / 1000;
+  const decay = DECAY_RATE + elapsed * 2;
+
   // 自動下降
-  progress -= DECAY_RATE * dt;
+  progress -= decay * dt;
+
   if (progress <= 0){
     progress = 0;
     fail();
@@ -261,7 +277,7 @@ function updateBar(){
 function moveShip(){
   // 依進度往上移動一些（最大 40% 高度）
   const maxRaise = area.clientHeight * 0.4;
-  ship.style.top = (5 + (100 - progress) / 100 * maxRaise / area.clientHeight * 100) + '%';
+  ship.style.top = (25 + (100 - progress) / 100 * maxRaise / area.clientHeight * 100) + '%';
 }
 
 /* ===== 成功 / 失敗 ===== */
