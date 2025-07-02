@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>哆啦A夢宇宙的模型</title>
+  <title>介紹頁面3</title>
   <style>
     body {
       margin: 0;
@@ -19,7 +19,7 @@
       position: fixed;
       width: 100%;
       height: 100%;
-      background: url('https://images.pexels.com/photos/5685081/pexels-photo-5685081.jpeg') repeat-y center center / cover;
+      background: url('https://raw.githubusercontent.com/BonBonChou/Dora/main/images/stars.jpeg') repeat-y center center / cover;
       animation: scrollStars 60s linear infinite;
       z-index: 0;
       opacity: 0.8;
@@ -46,15 +46,17 @@
 
     .container {
       position: relative;
+      max-width: 700px;
+      margin: auto;
       z-index: 1;
-      padding-top: 20vh;
+      padding-top: 5vh;
     }
 
     img.logo-img {
-      width: 80%;
+      width: 50%;
       //height: auto;
       max-width: 600px;
-      margin-top: -5em;
+      margin-top: 0.5em;
     }
 
     h1 {
@@ -78,27 +80,49 @@
       color: #b5fff0;
     }
 
+    .fuel-status {
+      font-weight: bold;
+      color: #00ccff;
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    #knowledge-title {
+      font-size: 2em;  /* 你可以依需求調整數值 */
+      font-weight: bold; /* 也可以設為 normal, lighter 等 */
+      margin-bottom: 1em;
+      color: #00ffcc;
+      margin-top: 0.5em;
+      display: block;
+      max-width: 700px;
+      margin: auto;
+    }
+
     .intro {
-      text-align: justify;
       margin-bottom: 0em;
-      background: rgba(255,255,255,0.05);
+      width: fit-content;     /* 核心：自動根據內容寬度調整 */
+      background: rgba(0,0,0,0.5);
       padding: 0.5em;
       border-radius: 10px;
     }
 
-    .link-bar {
-      margin-top: 3em;
-      font-size: 0.9em;
+    #knowledge-text {
+      font-size: 1.5em;
+      line-height: 1.6;
+      margin-bottom: 1em;
+      text-align: justify;
+      padding: 0 1em;
+      max-width: 700px;
+      margin: auto;
     }
 
-    .link-bar a {
-      color: #66ccff;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-
-    .link-bar a:hover {
-      text-decoration: underline;
+    #info-link {
+      padding: 0 1em;
+      max-width: 700px;
+      margin: auto;
+      //text-align: left;
+      line-height: 1.5em;
+      margin-top: 1em;
     }
   </style>
 </head>
@@ -107,27 +131,126 @@
   <div class="stars"></div>
 
   <div class="container">
-    <div id="start-screen">
-      <img class="logo-img" src="https://i.postimg.cc/9057xJT1/dora-title-removebg-preview.png">
-      <!-- 圖片網址: https://postimg.cc/0MnjjGVJ/a3af03f8-->
-      <h4>搭上太空船進入天球儀，<br>見識宇宙的遼闊與奧祕！</h4>
+    <div id="knowledge-screen">
+      <h3 id="knowledge-title"></h3>
+      <img class="logo-img" id="star-image" src="">
+      <p id="fuel" class="fuel-status"></p>
       <div class="intro">
-        <h5>大雄和朋友們進入哆啦A夢的天球儀，用維京太空船航行在星辰間，認識太陽系的行星、見證恆星的生與死，甚至直面黑洞與銀河的奧祕。宇宙劇場同名電影《哆啦A夢：宇宙的模型》內容化為這款小遊戲，邀請你親自踏上一段充滿知識與驚奇的星際冒險。</h5>
-        <h5>一場從房間出發的宇宙之旅！</h5>
-        <h3>🔍 遊戲說明</h3>
-        <p>🌌 <strong>背景故事</strong><br>你正駕駛著哆啦A夢的縮小維京太空船，進入天球儀後從太陽系出發，沿著航道前進。旅途中，你將靠完成小遊戲獲得燃料，一站站認識宇宙中的重要天體，逐步拼湊出宇宙演化的圖像。</p>
-        <p>🧠 <strong>玩法簡介</strong><br>遊戲分為 5 段旅程，每段起飛前需完成一個小遊戲補充燃料。每次探索會進入不同星體介紹頁面，了解宇宙的知識與奇觀。</p>
-        <p>🏆 <strong>目標與結局</strong><br>順利完成星際之旅，將見證宇宙的廣闊與生命的奇蹟，最後安全返回地球！</p>
+        <p id="knowledge-text"></p>
       </div>
-      <button onclick="startGame()">開始探險</button>
+      <div id="info-link" class="hidden"></div>
+      <button onclick="nextStar()">繼續</button>
     </div>
-    
   </div>
 
   <script>
-    function startGame() {
+    let fuel = parseInt(localStorage.getItem("fuel") || "300"); // 讀取燃料值
 
+    const stars = [
+      {
+        title: "白矮星<br>(e.g. 天狼星 B)",
+        image: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images/white_dwarf.jpg",
+        knowledge: `質量低於 8 倍太陽質量以下的恆星在燃燒完核心的氫後會成為紅巨星。
+        
+        隨著時間演化，生命末期的紅巨星會將外層氣體吹至太空，形成行星狀星雲。
+        
+        之後留下一個不再發生核融合反應的碳核，也就是白矮星。`,
+        link: [
+          { text: "展示場 2 樓：赫羅圖與恆星的一生", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E8%B5%AB%E7%BE%85%E5%9C%96%E8%88%87%E6%81%86%E6%98%9F%E7%9A%84%E4%B8%80%E7%94%9F"},
+          { text: "展示場 2 樓：緻密星體", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E7%B7%BB%E5%AF%86%E6%98%9F%E9%AB%94"}
+        ]
+      },
+      {
+        title: "中子星<br>(e.g. 未來的參宿四)",
+        image: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images//neutron_star.jpg",
+        knowledge: `質量介於 8 倍到 20 倍太陽質量的恆星在燃燒完核心的氫後會成為紅超巨星。
+        
+        隨著時間推移，紅超巨星的核心會因核融合反應而從氦核變為碳核。
+        
+        由於核心溫度足夠高，碳核能繼續產生核融合，形成鐵核，之後便不再發生核融合反應。
+        
+        失去了熱能支撐，外層開始塌縮，進而產生超新星爆炸。留下緻密的殘骸，便是中子星。`,
+        link: [
+          { text: "展示場 2 樓：赫羅圖與恆星的一生", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E8%B5%AB%E7%BE%85%E5%9C%96%E8%88%87%E6%81%86%E6%98%9F%E7%9A%84%E4%B8%80%E7%94%9F"},
+          { text: "展示場 2 樓：緻密星體", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E7%B7%BB%E5%AF%86%E6%98%9F%E9%AB%94"}
+        ]
+      },
+      {
+        title: "黑洞",
+        image: "https://raw.githubusercontent.com/BonBonChou/Dora/main/images//black_hole.jpg",
+        knowledge: `質量超過 20 倍太陽質量的恆星在燃燒完核心的氫後會成為紅特超巨星。
+        
+        紅特超巨星的核心會因核融合反應而從氦核變為碳核，再變為鐵核，之後繼續產生核融合反應。
+        
+        此時，核融合產生的熱能不足以抵擋自身重力而發生重力塌縮，就會形成黑洞。黑洞中心稱為奇異點，質量、密度皆無限大。
+        
+        由於黑洞強大的引力，在距離黑洞一定的範圍內就算連光也無法逃離，這個範圍的邊界稱為事件視界，範圍的長度則是黑洞半徑，又稱史瓦西半徑。`,
+        link: [
+          { text: "展示場 2 樓：赫羅圖與恆星的一生", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E8%B5%AB%E7%BE%85%E5%9C%96%E8%88%87%E6%81%86%E6%98%9F%E7%9A%84%E4%B8%80%E7%94%9F"},
+          { text: "展示場 2 樓：緻密星體", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E7%B7%BB%E5%AF%86%E6%98%9F%E9%AB%94"},
+          { text: "展示場 2 樓：黑洞", url: "https://sites.google.com/view/tamwebtp/%E4%BA%8C%E6%A8%93%E5%B1%95%E7%A4%BA%E5%8D%80_1/%E6%81%86%E6%98%9F/%E9%BB%91%E6%B4%9E"},
+          { text: "臺北星空 120 期 認識黑洞", url: "https://tam.gov.taipei/News_Content.aspx?n=A2F7381512F89DFB&sms=8DB4DFD3C6946BB3&s=53822E5B89E557C6"}
+        ]
+      }
+    ]
+
+    let currentIndex = 0;
+
+    window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
+      fuel -= 50;
+      renderStar(currentIndex);
+    });
+
+    function renderStar(index) {
+      const star = stars[index];
+
+      document.getElementById("knowledge-title").innerHTML = star.title;
+      document.getElementById("knowledge-text").innerHTML = formatknowledge(star.knowledge);
+      document.getElementById("star-image").src = star.image;
+
+      // 顯示燃料
+      document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+
+      // 連結處理
+      const linkArea = document.getElementById("info-link");
+      const info = stars[currentIndex];
+      const link = info && info.link;
+      if (link) {
+        linkArea.innerHTML = "<p>相關內容</p>";
+
+        if (Array.isArray(link)) { // 多個網址
+          link.forEach(l => {
+            linkArea.innerHTML += `<a href="${l.url}" target="_blank" style="display:block; color:#00ccff;">${l.text}</a>`;
+          });
+        }
+        else if (link.url && link.text) { // 單一網址
+          linkArea.innerHTML += `<a href="${link.url}" target="_blank" style="display:block; color:#00ccff;">${link.text}</a>`;
+        }
+        linkArea.classList.remove("hidden");
+      } else { // 沒有網址
+        linkArea.innerHTML = "";
+        linkArea.classList.add("hidden");
+      }
     }
+
+    function nextStar() {     
+      localStorage.setItem("fuel", fuel);
+
+      currentIndex++;
+      if (currentIndex >= stars.length) {
+        location.href="https://bonbonchou.github.io/Dora/game4.html";
+      } else {
+        fuel -= 50;
+        if (fuel < 0) fuel = 0; // 避免負數
+        renderStar(currentIndex);
+      }
+    }
+
+    function formatknowledge(knowledge) {
+  		return knowledge
+      .replace(/\n/g, '<br>') // 若你 intro 裡是用換行符號斷行，也可以加這行
+      .replace(/\s{2,}/g, ''); // 清除多餘空白
+  	}
   </script>
 
 </body>
