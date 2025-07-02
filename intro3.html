@@ -197,7 +197,7 @@
     let currentIndex = 0;
 
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
-      fuel -= 50;
+      fuel -= 500;
       renderStar(currentIndex);
     });
 
@@ -240,7 +240,7 @@
       if (currentIndex >= stars.length) {
         location.href="https://bonbonchou.github.io/Dora/game4.html";
       } else {
-        fuel -= 50;
+        fuel -= 500;
         if (fuel < 0) fuel = 0; // 避免負數
         renderStar(currentIndex);
       }
