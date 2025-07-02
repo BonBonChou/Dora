@@ -345,7 +345,7 @@
       const div = document.createElement('div');
       div.className = 'item';
       div.dataset.type = 'big';
-      div.dataset.hp = 50000;
+      div.dataset.hp = 400;
       div.style.width = '640px';
       div.style.height = '640px';
       div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid_big.jpg">`;
@@ -438,7 +438,11 @@
         }
 
         // 太空船撞隕石
-        if ((obj.el.dataset.type === 'small' || obj.el.dataset.type === 'big') && hitTest(obj.el, shipEl)) {
+        if (
+          (obj.el.dataset.type === 'small' || obj.el.dataset.type === 'big') &&
+          !obj.exploding && // 爆炸中不處理碰撞
+          hitTest(obj.el, shipEl)
+        ) {
           endFail();
         }
 
@@ -470,11 +474,13 @@
               obj.vy = 9999; // 移除控制
 
             } else if (obj.el.dataset.type === 'big') { // 大隕石
-              let hp = --obj.hp;
-              obj.el.dataset.hp = hp;
+              let hp = --obj.el.dataset.hp;
               if (hp === 0) {
                 fuel += 100;
                 fuelEl.textContent = fuel;
+
+                obj.exploding = true; // 標記這顆隕石正在爆炸
+                obj.vy = 0; // 停止移動
                 obj.el.style.animation = 'explode .5s forwards';
                 setTimeout(() => victory(), 500);
               }
