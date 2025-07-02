@@ -312,6 +312,7 @@
     }
 
     function spawnBullet(offsetX, vy, extraY = 0, vx = 0) {
+      if (bullets.length > 150) return;  // 限制同時存在的子彈數量避免lag
       const b = document.createElement('div');
       b.className = 'bullet';
       // 根據飛船（shipEl）的位置 + offsetX（左右偏移）
@@ -344,7 +345,7 @@
       const div = document.createElement('div');
       div.className = 'item';
       div.dataset.type = 'big';
-      div.dataset.hp = 80000;
+      div.dataset.hp = 50000;
       div.style.width = '640px';
       div.style.height = '640px';
       div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid_big.jpg">`;
@@ -358,7 +359,7 @@
       // 建立一個浮點 y 座標（對應 top: -480px）
       const obj = {
         el: div,
-        vy: 0.25,
+        vy: 0.5,
         y: -480  // 👈 初始位置，之後每幀都加 vy
       };
 
@@ -381,8 +382,17 @@
     };
 
     function spawnPower(x, y) {
-      const chance = Math.random();
-      let kind = chance < 0.33 ? 'rapid' : (chance < 0.66 ? 'forward' : 'diag');
+      // 可選的道具種類，根據目前狀態來決定
+      const availableKinds = [];
+
+      if (fireInterval > 340) availableKinds.push('rapid');
+      if (multiForward < 4) availableKinds.push('forward');
+      if (multiDiagonal < 3) availableKinds.push('diag');
+
+      // 如果都已達上限，則不生成任何道具
+      if (availableKinds.length === 0) return;
+      // 隨機從可用的種類中選一個
+      const kind = availableKinds[Math.floor(Math.random() * availableKinds.length)];
 
       const p = document.createElement('div');
       p.className = 'power';
@@ -392,7 +402,7 @@
       p.style.top = y + 'px';
       p.innerHTML = `<img src="${powerImgs[kind]}" style="width:150%; height:150%">`;
       area.appendChild(p);
-      items.push({ el: p, vy: 4 });
+      items.push({ el: p, vy: 5 });
     }
 
     // 主遊戲迴圈
@@ -404,9 +414,9 @@
       });
 
       bullets = bullets.filter(b => {
-        if (b.el.offsetTop < -10) {
+        if (b.el.offsetTop < 50) {
           b.el.remove();
-          return false;
+          return false; // 從 bullets 陣列中刪除
         }
         return true;
       });
@@ -468,8 +478,6 @@
                 obj.el.style.animation = 'explode .5s forwards';
                 setTimeout(() => victory(), 500);
               }
-
-              console.log(hp);
             }
 
             b.el.remove();
@@ -480,7 +488,7 @@
       /* 清理落出畫面 */
       items = items.filter(o => {
         if (o.vy === 0) return false;
-        if (o.el.offsetTop > area.offsetHeight + 120) {
+        if (o.el.offsetTop > area.offsetHeight + 30) {
           o.el.remove();
           return false;
         }
@@ -507,13 +515,13 @@
     // 增益效果套用
     function applyPower(kind) {
       if (kind === 'rapid') {
-        fireInterval = Math.max(180, fireInterval - 80);
+        fireInterval = Math.max(340, fireInterval - 80);
         clearInterval(fireTimer);
         fireTimer = setInterval(shoot, fireInterval);
       } else if (kind === 'forward') {
-        multiForward = Math.min(6, multiForward + 1);
+        multiForward = Math.min(4, multiForward + 1);
       } else if (kind === 'diag') {
-        multiDiagonal = Math.min(4, multiDiagonal + 1);;
+        multiDiagonal = Math.min(3, multiDiagonal + 1);;
       }
     }
 
