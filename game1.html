@@ -194,6 +194,13 @@
       pointer-events: none; /* 圖片不會攔截點擊事件 */
     }
 
+    .fuel-status {
+      font-weight: bold;
+      color: #00ccff;
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+    }
+
   </style>
 </head>
 <body>
@@ -226,6 +233,8 @@
   <!-- End -->
   <div id="end-screen" class="container hidden">
     <h1>收集完成！</h1>
+    <p class="fuel-status">本關得分：+<span id="score1"></span></p>
+    <p class="fuel-status">目前總分：<span id="score-total"></span></p>
     <h4>你獲得了 <span id="final-fuel"></span> 燃料！</h4>
     <button onclick="location.href='https://bonbonchou.github.io/Dora/intro1.html'">出發！</button>
   </div>
@@ -239,6 +248,7 @@
 
   <script>
     const SPAWN_INTERVAL = 700;
+    let spawnDelay = 700; // 初始間隔
     const GAME_DURATION  = 20000;
     let fuel = 0, timeLeft = 20, gameTimer, spawnTimer;
 
@@ -251,13 +261,22 @@
     const finalFuel = document.getElementById('final-fuel');
     const area = document.getElementById('game-area');
 
+    let score = 0;
+    function addScore(v){
+      score += v;
+      localStorage.setItem('score',score);
+    }
+
+
     function startGame() {
       tutScr.classList.add('hidden');
       gameScr.classList.remove('hidden');
       fuel = 0;
       timeLeft = 20;
+      score = 0;
       fuelEl.textContent = fuel;
       timeEl.textContent = timeLeft;
+      spawnLoop();
       spawnTimer = setInterval(spawnObject, SPAWN_INTERVAL);
       gameTimer = setInterval(() => {
         timeLeft--;
@@ -265,6 +284,12 @@
         if (timeLeft <= 0) endGame();
       }, 1000);
       setTimeout(endGame, GAME_DURATION);
+    }
+
+    function spawnLoop() {
+      spawnObject();
+      spawnDelay = Math.max(spawnDelay - 5, 300); // 每次生成間隔縮短，最低 300 ms
+      spawnTimer = setTimeout(spawnLoop, spawnDelay);
     }
 
     function endGame() {
@@ -280,6 +305,9 @@
         // 記錄燃料量
         let currentFuel = fuel;
         localStorage.setItem("fuel", currentFuel);
+        // 分數統計--------------------------------
+        document.getElementById('score1').textContent = score;
+        document.getElementById('score-total').textContent = score;
       } else {
         failScr.classList.remove('hidden');
       }
@@ -321,6 +349,11 @@
       e.stopPropagation();
       const val = parseInt(this.dataset.value);
       fuel += val;
+      // 分數統計--------------------------------
+      if (val===10) addScore(2.5);
+      if (val===50) addScore(10);
+      if (val===-100) addScore(-5);   
+
       if (fuel < 0){
         fuel = 0;
       }
