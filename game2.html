@@ -199,6 +199,8 @@
   <!-- 成功 -->
   <div id="success" class="container hidden">
     <h1>成功通過小行星帶！</h1>
+    <p class="fuel-status">本關得分：+<span id="score2"></span></p>
+    <p class="fuel-status">目前總分：<span id="score-total"></span></p>
     <h4>剩餘 <span id="fuel-final"></span> 燃料</h4>
     <button onclick="location.href='https://bonbonchou.github.io/Dora/intro2.html'">繼續航行</button>
   </div>
@@ -242,12 +244,43 @@
     let multiForward = 0;
     let multiDiagonal = 0;
 
+    // 分數計算 ------------------------------------------- 
+    let score = parseInt(localStorage.getItem('score')||'0');
+    let localScore = 0;
+    function addScore(v){
+      score += v;
+      localScore += v;
+    }
+
+
 
     // 初始化 ---------------------------------------------------------------- 
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
       document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
       //localStorage.setItem("fuel",0) // 測試用!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     });
+
+    // 主流程控制
+    function startGame() {
+      document.getElementById("tut").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      playing = true;
+      fuelEarned = 0;
+      fuelEl.textContent = fuel;
+
+      score = parseInt(localStorage.getItem('score')||'0');
+      localScore = 0;
+
+      fireTimer = setInterval(shoot, fireInterval);
+      spawnTimer = setInterval(() => {
+        if (!bigMeteorSpawned) {
+          spawnSmall();
+          spawnDelay = Math.max(200, spawnDelay - 15);
+        }
+      }, spawnDelay);
+
+      animId = requestAnimationFrame(loop);
+    }
 
     // 控制飛船拖曳
     area.addEventListener('pointerdown', moveShip);
@@ -337,7 +370,9 @@
       div.style.width = type.size + 'px';
       div.style.height = type.size + 'px';
       div.innerHTML = `<img src="https://raw.githubusercontent.com/BonBonChou/Dora/main/images/asteroid.jpg">`;
-      randomSpawn(div, 1 + Math.random() * 2);
+      // 10% 機率使用 vy = 10，否則為 1 ~ 3 的範圍
+      const vy = Math.random() < 0.1 ? 10 : 1 + Math.random() * 2;
+      randomSpawn(div, vy);
     }
 
     // 大隕石生成
@@ -463,6 +498,8 @@
                 fuelEarned += val;
                 fuel += val;
                 fuelEl.textContent = fuel;
+
+                addScore(1.1); // 每擊碎一顆 +1.1 分
               }             
 
               if (Math.random() < 0.2) {
@@ -531,25 +568,6 @@
       }
     }
 
-    // 主流程控制
-    function startGame() {
-      document.getElementById("tut").classList.add("hidden");
-      document.getElementById("game").classList.remove("hidden");
-      playing = true;
-      fuelEarned = 0;
-      fuelEl.textContent = fuel;
-
-      fireTimer = setInterval(shoot, fireInterval);
-      spawnTimer = setInterval(() => {
-        if (!bigMeteorSpawned) {
-          spawnSmall();
-          spawnDelay = Math.max(200, spawnDelay - 15);
-        }
-      }, spawnDelay);
-
-      animId = requestAnimationFrame(loop);
-    }
-
     function checkBigMeteor() {
       if (fuel >= 500 && !bigMeteorSpawned) {
         bigMeteorSpawned = true;
@@ -568,6 +586,13 @@
       document.getElementById("game").classList.add("hidden");
       document.getElementById("success").classList.remove("hidden");
       document.getElementById("fuel-final").textContent = fuel;
+      // 分數統計-------------------------------------------------------
+      score = Math.round(score);
+      localScore = Math.round(localScore);
+      localStorage.setItem('score',score);
+
+      document.getElementById('score2').textContent = localScore;
+      document.getElementById('score-total').textContent = score;
     }
 
     function endFail() {
@@ -615,6 +640,7 @@
       area.addEventListener('pointermove', e => playing && moveShip(e));
 
       document.getElementById("fuel-num").textContent = fuel;
+      startGame();
     }
 
 
