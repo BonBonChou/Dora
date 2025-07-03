@@ -49,12 +49,13 @@ button:hover { background:#63b3ed}
 h1 {
   font-size: 2.3em;
   margin: .2em 0;
+  color: #00ffcc;
 }
 
 h4 {
   font-size: 1.4em;
-  color: #00ffcc;
-  margin: 0 0 1em
+  margin: 0 0 1em;
+  margin-top: 1em;
 }
 
 .intro {
@@ -186,7 +187,11 @@ h4 {
 <!-- 成功 -->
 <div id="success" class="container hidden">
   <h1>成功脫離黑洞！</h1>
-  <h4>剩餘 <span id="fuel-final"></span> 燃料</h4>
+  <h4>你花費了 <span id="time-used"></span> 秒成功逃脫。</h4>
+  <h4>總共消耗 <span id="fuel-used"></span> 燃料。</h4>
+  <h4>期間太空船吸收了霍金輻射，</h4>
+  <h4>你在逃出後將其轉為能量。</h4>
+  <h4>回復了 <span id="fuel-bonus"></span> 燃料，剩餘 <span id="fuel-final"></span> 燃料</h4>
   <button onclick="location.href='https://bonbonchou.github.io/Dora/intro4.html'">繼續航行</button>
 </div>
 
@@ -205,12 +210,13 @@ const barWrap   = document.getElementById('progress-wrapper');
 const bar       = document.getElementById('progress-bar');
 const fuelHUD   = document.getElementById('fuel');
 
-let fuel        = parseInt(localStorage.getItem('fuel') || '0');
+let fuel        = 500;//parseInt(localStorage.getItem('fuel') || '0');
 let progress    = 0;         // 0~100
 let playing     = false;
 let startTime    = 0;
 let lastTime    = 0;
-const DECAY_RATE = 18;       // 每秒自動下降百分比
+let initialFuel = 0;
+const DECAY_RATE = 12;       // 每秒自動下降百分比
 const GAIN_PER_CLICK = 5;    // 每點增加進度
 let animId;
 
@@ -229,6 +235,7 @@ function startGame(){
   updateBar();
   startTime = performance.now();
   lastTime = performance.now();
+  initialFuel = fuel;
   playing = true;
 
   area.addEventListener('pointerdown', clickHandler);
@@ -237,7 +244,8 @@ function startGame(){
 
 function clickHandler(){
   if (!playing || fuel <= 0) return;
-  fuel--;
+  fuel -= 10;
+  fuel = Math.max(fuel, 0);
   fuelHUD.textContent = `剩餘 ${fuel} 燃料`;
   progress = Math.min(100, progress + GAIN_PER_CLICK);
   updateBar();
@@ -250,7 +258,7 @@ function loop(now){
   lastTime = now;
 
   const elapsed = (now - startTime) / 1000;
-  const decay = DECAY_RATE + elapsed * 2;
+  const decay = DECAY_RATE + elapsed * 1.5;
 
   // 自動下降
   progress -= decay * dt;
@@ -283,13 +291,27 @@ function moveShip(){
 /* ===== 成功 / 失敗 ===== */
 function success(){
   playing = false;
+
+  const escapeTime = ((performance.now() - startTime) / 1000).toFixed(1); // 格式化為小數點後 1 位，並回傳一個字串，例如 "3.1"
+  let bonus = Math.round(3000 - escapeTime * 100); // 基礎為 3000，每多花1秒扣100分
+  bonus = Math.max(1500, Math.min(3000, bonus)); // 設定上下限：最少回復1500，最多回復3000
+
+  const used = initialFuel - fuel;
+
+  fuel += bonus;
+
+
   localStorage.setItem('fuel', fuel);
+
   cancelAnimationFrame(animId);
   area.removeEventListener('pointerdown', clickHandler);
-
   document.getElementById('game').classList.add('hidden');
   document.getElementById('success').classList.remove('hidden');
+
   document.getElementById('fuel-final').textContent = fuel;
+  document.getElementById('time-used').textContent = escapeTime;
+  document.getElementById('fuel-used').textContent = used;
+  document.getElementById('fuel-bonus').textContent = bonus;
 }
 
 function fail(){
@@ -310,13 +332,14 @@ function restartGame(){
   updateBar();
 
   // 重設燃料值
-  fuel = parseInt(localStorage.getItem('fuel') || '0');
+  fuel = 500;//parseInt(localStorage.getItem('fuel') || '0');
   fuelHUD.textContent = `剩餘 ${fuel} 燃料`;
 
   // 重設時間與狀態
   startTime = performance.now();
   lastTime = performance.now();
   playing = false;
+  initialFuel = 0;
 
   // 確保不會重複動畫
   cancelAnimationFrame(animId);
