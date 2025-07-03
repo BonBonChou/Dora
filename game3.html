@@ -247,6 +247,8 @@
   <!-- End ----------------------------------------------------------------- -->
   <div id="end-screen" class="container hidden">
     <h1>補給完成！</h1>
+    <p class="fuel-status">本關得分：+<span id="score3"></span></p>
+    <p class="fuel-status">目前總分：<span id="score-total"></span></p>
     <h4>剩餘 <span id="final-fuel"></span> 燃料</h4>
     <button onclick="location.href='https://bonbonchou.github.io/Dora/intro3.html'">出發！</button>
   </div>
@@ -287,6 +289,13 @@
     let currentSpeed = ITEM_FALL_SPEED;
     let spawnDelay = 1000; // 初始間隔
 
+    let surviveStart = 0;
+    let score = parseInt(localStorage.getItem('score')||'0');
+    function addScore(v){
+      score += v;
+      localStorage.setItem('score',score);
+    }
+
     /* 初始化 ---------------------------------------------------------------- */
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
       document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
@@ -306,6 +315,8 @@
       setInterval(() => {
         currentSpeed += 0.25;  // 每秒加速
       }, 1000);
+
+      surviveStart = Date.now();
     }
 
     function spawnLoop() {
@@ -397,11 +408,21 @@
       items.forEach(obj => obj.el.remove());
       items=[];
       game.classList.add('hidden');
-      if (fuel >= 3300) {
+
+      if (fuel >= 3300) { // 成功
+        // 分數統計-----------------------------------------
+        const surviveTime = (Date.now() - surviveStart)/1000; // 秒
+        const bonusScore = Math.round(surviveTime * 2);
+        addScore(bonusScore); // 每秒 +2 分
+        document.getElementById('score3').textContent = bonusScore;
+        const scoreNow = localStorage.getItem('score')||0;
+        document.getElementById('score-total').textContent = scoreNow;
+
+
         localStorage.setItem('fuel', fuel);
         finalFuel.textContent = fuel;
         end.classList.remove('hidden');
-      } else {
+      } else { // 失敗
         fail.classList.remove('hidden');
       }
     }
