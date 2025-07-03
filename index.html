@@ -125,6 +125,8 @@
 
   <script>
     function startGame() {
+      localStorage.removeItem('score');
+      localStorage.removeItem('fuel');
       location.href = "https://bonbonchou.github.io/Dora/game1.html";
     }
   </script>
