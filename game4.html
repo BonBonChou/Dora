@@ -187,6 +187,8 @@ h4 {
 <!-- 成功 -->
 <div id="success" class="container hidden">
   <h1>成功脫離黑洞！</h1>
+  <p class="fuel-status">本關得分：+<span id="score4"></span></p>
+  <p class="fuel-status">目前總分：<span id="score-total"></span></p>
   <h4>你花費了 <span id="time-used"></span> 秒成功逃脫。</h4>
   <h4>總共消耗 <span id="fuel-used"></span> 燃料。</h4>
   <h4>期間太空船吸收了霍金輻射，</h4>
@@ -221,6 +223,11 @@ let initialFuel = 0;
 const DECAY_RATE = 12;       // 每秒自動下降百分比
 const GAIN_PER_CLICK = 5;    // 每點增加進度
 let animId;
+let score = parseInt(localStorage.getItem('score')||'0');
+function addScore(v){
+  score += v;
+  localStorage.setItem('score',score);
+}
 
 /* ===== 初始化 ===== */
 window.addEventListener('DOMContentLoaded', ()=>{
@@ -313,8 +320,14 @@ function success(){
   document.getElementById('time-used').textContent = escapeTime;
   document.getElementById('fuel-used').textContent = used;
   document.getElementById('fuel-bonus').textContent = bonus;
+  // 分數統計---------------------------------------------------
+  const bonusScore = Math.max(0, 100 - Math.round(escapeTime * 4));
+  addScore(bonusScore);
+  document.getElementById('score4').textContent = bonusScore;
+  const scoreNow = localStorage.getItem('score')||0;
+  document.getElementById('score-total').textContent = scoreNow;
 
-  // 連結處理
+  // 連結處理---------------------------------------------------
   const linkArea = document.getElementById("info-link");
   const link = [
           { text: "什麼是「灰洞」？這個名詞真的存在嗎？", url: "https://tam.gov.taipei/News_Content.aspx?n=9250C757DF698D9D&sms=52C350C47FE06B81&s=2D7E663912FAB435"},
