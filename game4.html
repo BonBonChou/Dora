@@ -295,8 +295,8 @@ function success(){
   playing = false;
 
   const escapeTime = ((performance.now() - startTime) / 1000).toFixed(1); // 格式化為小數點後 1 位，並回傳一個字串，例如 "3.1"
-  let bonus = Math.round(3000 - escapeTime * 100); // 基礎為 3000，每多花1秒扣100分
-  bonus = Math.max(1500, Math.min(3000, bonus)); // 設定上下限：最少回復1500，最多回復3000
+  let bonus = Math.round(10000 - escapeTime * 500); // 基礎為 3000，每多花1秒扣1000分
+  bonus = Math.max(5000, Math.min(10000, bonus)); // 設定上下限：最少回復5000，最多回復10000
 
   const used = initialFuel - fuel;
 
