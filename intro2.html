@@ -212,6 +212,7 @@
     let currentIndex = 0;
 
     window.addEventListener("DOMContentLoaded", () => { // 畫面載入完成後執行
+      fuel -= 150;
       renderStar(currentIndex);
     });
 
@@ -223,7 +224,7 @@
       document.getElementById("star-image").src = star.image;
 
       // 顯示燃料
-      document.getElementById("fuel").textContent = `剩餘 ${fuel} 燃料`;
+      document.getElementById("fuel").textContent = `消耗 150 燃料，剩餘 ${fuel} 燃料`;
 
       // 連結處理
       const linkArea = document.getElementById("info-link");
