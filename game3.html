@@ -313,7 +313,7 @@
       animId = requestAnimationFrame(update);
 
       setInterval(() => {
-        currentSpeed += 0.25;  // 每秒加速
+        currentSpeed += 0.2;  // 每秒加速
       }, 1000);
 
       surviveStart = Date.now();
@@ -321,7 +321,7 @@
 
     function spawnLoop() {
       spawnItem();
-      spawnDelay = Math.max(spawnDelay - 10, 230); // 每次生成間隔縮短，最低 180 ms
+      spawnDelay = Math.max(spawnDelay - 5, 230); // 每次生成間隔縮短，最低 230 ms
       spawnTimer = setTimeout(spawnLoop, spawnDelay);
     }
     
