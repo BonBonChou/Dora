@@ -221,7 +221,7 @@ let startTime    = 0;
 let lastTime    = 0;
 let initialFuel = 0;
 const DECAY_RATE = 12;       // 每秒自動下降百分比
-const GAIN_PER_CLICK = 5;    // 每點增加進度
+const GAIN_PER_CLICK = 7;    // 每點增加進度
 let animId;
 let score = parseInt(localStorage.getItem('score')||'0');
 function addScore(v){
@@ -379,3 +379,4 @@ function restartGame(){
 </script>
 </body>
 </html>
+
